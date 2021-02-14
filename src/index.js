@@ -4,9 +4,8 @@ import App from './app';
 import reportWebVitals from './other/reportWebVitals';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+    // change back to <>React.StrictMode
+    <App />,
   document.getElementById('root')
 );
 
