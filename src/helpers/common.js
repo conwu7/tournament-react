@@ -24,3 +24,20 @@ export async function fetchApi (url, method, values) {
         }
     })
 }
+export function basicFetch (url, method, values, loadingFunction, reloadOnSuccess, alertOnFailure) {
+    loadingFunction(true);
+    setTimeout(async () => {
+        try {
+            await fetchApi(url, method);
+            if (reloadOnSuccess) {
+                window.location.reload();
+            }
+        } catch (e) {
+            if (alertOnFailure) {
+                alert(e);
+            }
+        } finally {
+            loadingFunction(false);
+        }
+    }, 1000)
+}

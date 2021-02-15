@@ -13,7 +13,7 @@ import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOut
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import {Form, useFormik} from "formik";
+import {useFormik} from "formik";
 import {fetchApi} from "../../helpers/common";
 import {useHistory} from "react-router-dom";
 import WaitForServer from "../loading";
@@ -164,10 +164,10 @@ export function TournamentForm (props) {
                             {
                                 allDisabled &&
                                 <Typography>
-                                    You can only change the name of this tournament as it's already in progress.
+                                    You can only change the name as this tournament is already in progress.
                                     <br />
                                     <br />
-                                    In order to update other settings, reset all tournaments fixtures.
+                                    In order to update other settings, reset the tournament's fixtures.
                                 </Typography>
                             }
                         </Grid>

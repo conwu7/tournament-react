@@ -227,6 +227,7 @@ export default function Tournament (props) {
                                   index="admin"
                                   >
                             <Admin tournament={tournament}
+                                   tournamentId={tournamentId}
                             />
                         </TabPanel>
                     </Route>
@@ -311,7 +312,7 @@ function Team (props) {
             >
                 <Typography className={styles.teamIndex}>{index+1}</Typography>
                 <Typography className={styles.name}>
-                    {team.teamName}
+                    {team.teamName || "( empty )"}
                 </Typography>
             </Button>
             <Typography
