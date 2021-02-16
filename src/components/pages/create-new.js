@@ -38,9 +38,16 @@ const useStyles = makeStyles((theme) => ({
         height: 60,
         fontSize: 19
     },
+    typeLabel: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center"
+    },
     tournamentType: {
         display: "flex",
-        flexDirection: "row"
+        flexDirection: "row",
+        marginLeft: 20,
+        marginRight: 20
     },
     nameField: {
         borderRadius: 5,
@@ -81,7 +88,7 @@ export function TournamentForm (props) {
     const {isKnockout, useRealTeams, useTwoLegs, useOneFinal, useAwayGoals,
         name, _id: tournamentId, hasLeagueFixturesGenerated, currentRound} = tournament;
     const allDisabled = hasLeagueFixturesGenerated || !!currentRound;
-    const classes = useStyles();
+    const styles = useStyles();
     const [wait, setWaitForServer] = useState(false);
     const [serverError, setServerError] = useState("");
     const [tournamentProps, setTournamentProps] = useState({
@@ -147,14 +154,14 @@ export function TournamentForm (props) {
         <Container component="main" maxWidth="md">
             <CssBaseline />
             <WaitForServer wait={wait} />
-            <div className={classes.paper}>
-                <Avatar className={classes.avatar}>
+            <div className={styles.paper}>
+                <Avatar className={styles.avatar}>
                     <AddCircleOutlineOutlinedIcon />
                 </Avatar>
                 <Typography component="h1" variant="h5">
                     {isCreating ? "New Tournament" : "Update Tournament"}
                 </Typography>
-                <form className={classes.form} onSubmit={formik.handleSubmit}>
+                <form className={styles.form} onSubmit={formik.handleSubmit}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <TextField
@@ -166,15 +173,15 @@ export function TournamentForm (props) {
                                 label="Tournament Name"
                                 name="name"
                                 autoComplete="tournamentName"
-                                InputProps={{className: classes.nameField}}
+                                InputProps={{className: styles.nameField}}
                                 value={formik.values.name}
                                 onChange={formik.handleChange}
                             />
                         </Grid>
-                        <Grid item className={classes.error}>
+                        <Grid item className={styles.error}>
                             {formik.touched.name && formik.errors.name}
                         </Grid>
-                        <Grid item className={classes.error}>
+                        <Grid item className={styles.error}>
                             {
                                 allDisabled &&
                                 <Typography>
@@ -187,117 +194,78 @@ export function TournamentForm (props) {
                         </Grid>
                         <Grid item xs={12}>
                             {/*<FormLabel component="legend">Type</FormLabel>*/}
-                            <FormControl component="fieldset">
+                            <FormControl component="fieldset" className={styles.typeLabel}>
+                                <Typography>Type: </Typography>
                                 <RadioGroup aria-label="isKnockout"
                                             name="isKnockout"
                                             value={tournamentProps.isKnockout}
                                             onChange={handleRadioChange('isKnockout')}
-                                            className={classes.tournamentType}
+                                            className={styles.tournamentType}
                                 >
                                     <FormControlLabel value={0}
                                                       disabled={allDisabled}
                                                       control={<Radio />}
-                                                      label={<Typography className={classes.checkboxLabel}>League</Typography>}/>
+                                                      label={<Typography className={styles.checkboxLabel}>League</Typography>}/>
                                     <FormControlLabel value={1}
                                                       disabled={allDisabled}
                                                       control={<Radio />}
-                                                      label={<Typography className={classes.checkboxLabel}>Knockout</Typography>}/>
+                                                      label={<Typography className={styles.checkboxLabel}>Knockout</Typography>}/>
                                 </RadioGroup>
                             </FormControl>
 
                         </Grid>
-                        <Grid item xs={12}>
-                            <FormControl component="fieldset">
-                                <FormControlLabel
-                                    control={<Checkbox className={classes.checkbox}
-                                                       value={1}
-                                                       color="secondary"
-                                                       checked={!!tournamentProps.useRealTeams}
-                                                       onChange={handleRadioChange('useRealTeams')}
-                                                       disabled={allDisabled}
-                                    />}
-                                    label={<Typography className={classes.checkboxLabel}>Use Real Teams</Typography>}
-                                />
-                            </FormControl>
-                        </Grid>
-                        <Grid container justify="flex-start">
-                            <Grid item>
-                                <Typography className={classes.moreInfo}>
-                                    Show real club options when adding teams
-                                </Typography>
-                            </Grid>
-                        </Grid>
+                        {/*USE REAL TEAMS OPTION*/}
+                        <CheckBoxField value={1}
+                                       disabled={allDisabled}
+                                       checked={!!tournamentProps.useRealTeams}
+                                       onChange={handleRadioChange('useRealTeams')}
+                                       label={"Use Real Teams"}
+                                       moreInfoComponent={<Typography className={styles.moreInfo}>
+                                           Show real club options when adding teams
+                                       </Typography>}
+                        />
                         {/*TWO LEGS OPTION*/}
-                        <Grid item xs={12}>
-                            <FormControlLabel
-                                control={<Checkbox className={classes.checkbox}
-                                                   value={1}
-                                                   color="secondary"
-                                                   onChange={handleRadioChange('useTwoLegs')}
-                                                   checked={!!tournamentProps.useTwoLegs}
-                                                   disabled={allDisabled}
-                                />}
-                                label={<Typography className={classes.checkboxLabel}>Use Two Legs</Typography>}
-                            />
-                        </Grid>
-                        <Grid container justify="flex-start">
-                            <Grid item>
-                                <Typography className={classes.moreInfo}>
-                                    Each encounter will have a home and away match
-                                </Typography>
-                            </Grid>
-                        </Grid>
+                        <CheckBoxField value={1}
+                                       disabled={allDisabled}
+                                       checked={!!tournamentProps.useTwoLegs}
+                                       onChange={handleRadioChange('useTwoLegs')}
+                                       label={"Use Two Legs"}
+                                       moreInfoComponent={<Typography className={styles.moreInfo}>
+                                           Each encounter will have a home and away match
+                                       </Typography>}
+                        />
                         {/*ONE FINAL OPTION*/}
-                        <Grid item xs={12}>
-                            <FormControlLabel
-
-                                control={<Checkbox className={classes.checkbox}
-                                                   value={1}
-                                                   color="secondary"
-                                                   disabled={tournamentProps.isKnockout === 0 ||
-                                                   tournamentProps.useTwoLegs !== 1 || allDisabled}
-                                                   onChange={handleRadioChange('useOneFinal')}
-                                                   checked={!!tournamentProps.useOneFinal}
-                                />}
-                                label={<Typography className={classes.checkboxLabel}>Use One Leg Final</Typography>}
-                            />
-                        </Grid>
-                        <Grid container justify="flex-start">
-                            <Grid item>
-                                <Typography className={classes.moreInfo}>
-                                    Only enabled if type is Knockout and "Use Two Legs" is selected
-                                    <br />
-                                    <br />
-                                    For knockout tournaments with two legs, the final will have only one neutral match
-                                </Typography>
-                            </Grid>
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <FormControlLabel
-                                control={<Checkbox className={classes.checkbox}
-                                                   value={1}
-                                                   color="secondary"
-                                                   disabled={tournamentProps.isKnockout === 0 ||
-                                                   tournamentProps.useTwoLegs !== 1 || allDisabled}
-                                                   onChange={handleRadioChange('useAwayGoals')}
-                                                   checked={!!tournamentProps.useAwayGoals}
-                                />}
-                                label={<Typography className={classes.checkboxLabel}>Use Away Goals Tiebreaker</Typography>}
-                            />
-                        </Grid>
-                        <Grid container justify="flex-start">
-                            <Grid item>
-                                <Typography className={classes.moreInfo}>
-                                    Only enabled if type is Knockout and "Use Two Legs" is selected
-                                    <br />
-                                    <br />
-                                    If the round is still a tie after both home and away matches are completed,
-                                    the team who scored more goals away will progress to the next round.
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                        <Grid item className={classes.error}>
+                        <CheckBoxField value={1}
+                                       disabled={tournamentProps.isKnockout === null ||
+                                        tournamentProps.isKnockout === 0 ||
+                                        tournamentProps.useTwoLegs !== 1 || allDisabled}
+                                       checked={!!tournamentProps.useOneFinal}
+                                       onChange={handleRadioChange('useOneFinal')}
+                                       label={"Use One Leg Final"}
+                                       moreInfoComponent={<Typography className={styles.moreInfo}>
+                                           Only enabled if type is Knockout and "Use Two Legs" is selected
+                                           <br />
+                                           <br />
+                                           For knockout tournaments with two legs, the final will have only one neutral match
+                                       </Typography>}
+                        />
+                        {/*AWAY GOALS TIE BREAKER OPTION*/}
+                        <CheckBoxField value={1}
+                                       disabled={tournamentProps.isKnockout === null ||
+                                        tournamentProps.isKnockout === 0 ||
+                                        tournamentProps.useTwoLegs !== 1 || allDisabled}
+                                       checked={!!tournamentProps.useAwayGoals}
+                                       onChange={handleRadioChange('useAwayGoals')}
+                                       label={"Use Away Goals Tiebreaker"}
+                                       moreInfoComponent={<Typography className={styles.moreInfo}>
+                                           Only enabled if type is Knockout and "Use Two Legs" is selected
+                                           <br />
+                                           <br />
+                                           If the round is still a tie after both home and away matches are completed,
+                                           the team who scored more goals away will progress to the next round.
+                                       </Typography>}
+                        />
+                        <Grid item className={styles.error}>
                             {serverError}
                         </Grid>
                     </Grid>
@@ -306,19 +274,37 @@ export function TournamentForm (props) {
                         fullWidth
                         variant="contained"
                         color="secondary"
-                        className={classes.submit}
+                        className={styles.submit}
                     >
                         Save
                     </Button>
-                    {/*<Grid container justify="flex-end">*/}
-                    {/*    <Grid item>*/}
-                    {/*        <Link href="#" variant="body2">*/}
-                    {/*            Already have an account? Sign in*/}
-                    {/*        </Link>*/}
-                    {/*    </Grid>*/}
-                    {/*</Grid>*/}
                 </form>
             </div>
         </Container>
     );
+}
+function CheckBoxField (props) {
+    const styles = useStyles();
+    const {value, disabled, onChange, checked, moreInfoComponent, label} = props;
+    return (
+        <>
+            <Grid item xs={12}>
+                <FormControlLabel
+                    label={<Typography className={styles.checkboxLabel}>{label}</Typography>}
+                    control={<Checkbox className={styles.checkbox}
+                                       value={value}
+                                       color="secondary"
+                                       disabled={disabled}
+                                       onChange={onChange}
+                                       checked={checked}
+                    />}
+                />
+            </Grid>
+            <Grid container justify="flex-start">
+                <Grid item>
+                    {moreInfoComponent}
+                </Grid>
+            </Grid>
+        </>
+    )
 }

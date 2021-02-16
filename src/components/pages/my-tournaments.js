@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
 export default function MyTournaments (props) {
     const {user} = props;
     const [recentTournaments, setRecent] = useState([]);
-    const classes = useStyles();
+    const styles = useStyles();
     const [adminTournaments, setAdminTournaments] = useState([]);
     useEffect(() => {
         if (!user) return
@@ -76,11 +76,11 @@ export default function MyTournaments (props) {
         <React.Fragment>
             <CssBaseline />
             <Container maxWidth="md">
-                <div className={classes.root}>
+                <div className={styles.root}>
                     <Paper elevation={2}>
                         <Typography variant="h5"
                                     align="center"
-                                    className={classes.pageHeader}
+                                    className={styles.pageHeader}
                         >
                             MY TOURNAMENTS
                         </Typography>
@@ -92,12 +92,12 @@ export default function MyTournaments (props) {
                             aria-controls="panel1a-content"
                             id="panel1a-header"
                         >
-                            <Typography className={classes.heading}>Favorites</Typography>
+                            <Typography className={styles.heading}>Favorites</Typography>
                         </AccordionSummary>
-                        <AccordionDetails className={classes.accDetails}>
+                        <AccordionDetails className={styles.accDetails}>
                             {
                                 !user &&
-                                <Typography className={classes.signedOutMessage}>
+                                <Typography className={styles.signedOutMessage}>
                                     <Link to="/login">
                                         Sign in to view your favorites
                                     </Link>
@@ -112,9 +112,9 @@ export default function MyTournaments (props) {
                             aria-controls="panel2a-content"
                             id="panel2a-header"
                         >
-                            <Typography className={classes.heading}>Recent (On this browser)</Typography>
+                            <Typography className={styles.heading}>Recent (On this browser)</Typography>
                         </AccordionSummary>
-                        <AccordionDetails className={classes.accDetails}>
+                        <AccordionDetails className={styles.accDetails}>
                             {
                                 recentTournaments.length === 0 &&
                                     <Typography>--</Typography>
@@ -138,12 +138,12 @@ export default function MyTournaments (props) {
                             aria-controls="panel3a-content"
                             id="panel3a-header"
                         >
-                            <Typography className={classes.heading}>Admin</Typography>
+                            <Typography className={styles.heading}>Admin</Typography>
                         </AccordionSummary>
-                        <AccordionDetails className={classes.accDetails}>
+                        <AccordionDetails className={styles.accDetails}>
                             {
                                 !user &&
-                                <Typography className={classes.signedOutMessage}>
+                                <Typography className={styles.signedOutMessage}>
                                     <Link to="/login">
                                         Sign in to view tournaments you manage
                                     </Link>

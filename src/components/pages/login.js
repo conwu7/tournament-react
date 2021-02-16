@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function FormBody (props) {
-    const classes = useStyles();
+    const styles = useStyles();
     const {showUsername, page, isCreating, apiUrl, validationSchema} = props;
     const [wait, setWaitForServer] = useState(false);
     const [serverError, setServerError] = useState("");
@@ -85,14 +85,14 @@ export function FormBody (props) {
             <Container component="main" maxWidth="xs">
                 <WaitForServer wait={wait} />
                 <CssBaseline />
-                <div className={classes.paper}>
-                    <Avatar className={classes.avatar}>
+                <div className={styles.paper}>
+                    <Avatar className={styles.avatar}>
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
                         {page}
                     </Typography>
-                    <form className={classes.form} onSubmit={formik.handleSubmit}>
+                    <form className={styles.form} onSubmit={formik.handleSubmit}>
                         <Grid container spacing={2}>
                             {   showUsername &&
                                 <>
@@ -110,7 +110,7 @@ export function FormBody (props) {
                                             value={formik.values.username}
                                     />
                                     </Grid>
-                                    <Grid item className={classes.error}>
+                                    <Grid item className={styles.error}>
                                         {formik.touched.username && formik.errors.username}
                                     </Grid>
                                 </>
@@ -130,7 +130,7 @@ export function FormBody (props) {
                                     value={formik.values.email}
                                 />
                             </Grid>
-                            <Grid item className={classes.error}>
+                            <Grid item className={styles.error}>
                                 {formik.touched.email && formik.errors.email}
                             </Grid>
                             <Grid item xs={12}>
@@ -148,11 +148,11 @@ export function FormBody (props) {
                                     value={formik.values.password}
                                 />
                             </Grid>
-                            <Grid item className={classes.error}>
+                            <Grid item className={styles.error}>
                                 {formik.touched.password && formik.errors.password}
                             </Grid>
                         </Grid>
-                        <Grid item className={classes.error}>
+                        <Grid item className={styles.error}>
                             {serverError}
                         </Grid>
                         <Button
@@ -160,7 +160,7 @@ export function FormBody (props) {
                             fullWidth
                             variant="contained"
                             color="primary"
-                            className={classes.submit}
+                            className={styles.submit}
                         >
                             {page}
                         </Button>

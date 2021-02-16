@@ -17,16 +17,16 @@ const useStyles = makeStyles((theme) => ({
 }));
 export default function WaitForServer (props) {
     const {wait} = props;
-    const classes = useStyles();
+    const styles = useStyles();
     return (
         <Modal
             open={wait}
             aria-labelledby="simple-modal-title"
             aria-describedby="simple-modal-description"
             disableBackdropClick={true}
-            className={classes.modal}
+            className={styles.modal}
         >
-            <CircularProgress size={100} thickness={4} className={classes.loadingContainer}/>
+            <CircularProgress size={100} thickness={4} className={styles.loadingContainer}/>
         </Modal>
     )
 }

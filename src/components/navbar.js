@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function NavBar (props) {
     const {user} = props;
-    const classes = useStyles();
+    const styles = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -71,10 +71,10 @@ export default function NavBar (props) {
     }
     return (
         <AppBar position="fixed"
-                className={classes.appBar}>
+                className={styles.appBar}>
             <Toolbar>
                 <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
-                    <MenuIcon className={classes.menuIcon} />
+                    <MenuIcon className={styles.menuIcon} />
                 </Button>
                 <Menu
                     id="simple-menu"
@@ -83,32 +83,32 @@ export default function NavBar (props) {
                     open={Boolean(anchorEl)}
                     onClose={handleClose}
                 >
-                    <Link to="/" className={classes.navLinkText}>
-                        <MenuItem onClick={handleClose} className={classes.menuItem}>
+                    <Link to="/" className={styles.navLinkText}>
+                        <MenuItem onClick={handleClose} className={styles.menuItem}>
                             Home
                         </MenuItem>
                     </Link>
-                    <Link to="/new" className={classes.navLinkText}>
-                        <MenuItem onClick={handleClose} className={classes.menuItem}>
+                    <Link to="/new" className={styles.navLinkText}>
+                        <MenuItem onClick={handleClose} className={styles.menuItem}>
                             New Tournament
                         </MenuItem>
                     </Link>
                     {
                         user &&
-                        <MenuItem onClick={handleLogout} className={classes.logoutText}>Logout</MenuItem>
+                        <MenuItem onClick={handleLogout} className={styles.logoutText}>Logout</MenuItem>
                     }
                 </Menu>
-                <Typography variant="h6" className={classes.title}>
+                <Typography variant="h6" className={styles.title}>
                     Home
                 </Typography>
                 {
                     !user &&
                         <>
-                            <Button color="inherit" className={classes.links}>
-                                <NavLink to="/login" className={classes.loginText}>Login</NavLink>
+                            <Button color="inherit" className={styles.links}>
+                                <NavLink to="/login" className={styles.loginText}>Login</NavLink>
                             </Button>
-                            <Button color="inherit" className={classes.links}>
-                                <NavLink to="/signup" className={classes.loginText}>Sign-up</NavLink>
+                            <Button color="inherit" className={styles.links}>
+                                <NavLink to="/signup" className={styles.loginText}>Sign-up</NavLink>
                             </Button>
                         </>
                 }

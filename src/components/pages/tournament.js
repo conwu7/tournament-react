@@ -36,13 +36,6 @@ function TabPanel(props) {
     );
 }
 
-function a11yProps(index) {
-    return {
-        id: `scrollable-auto-tab-${index}`,
-        'aria-controls': `scrollable-auto-tabpanel-${index}`,
-    };
-}
-
 const useStyles = makeStyles((theme) => ({
     root: {
         paddingTop: 10,
@@ -57,6 +50,11 @@ const useStyles = makeStyles((theme) => ({
     },
     indicator: {
         backgroundColor: "darkslategray",
+    },
+    appBarContainer: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
     },
     tabItem: {
         '&:selected': {
@@ -175,38 +173,35 @@ export default function Tournament (props) {
                     {tournament.name}
                 </Typography>
             </Paper>
-            <AppBar position="sticky" color="default">
+            <AppBar position="sticky" color="default" className={styles.appBarContainer}>
                 <Tabs
                     value={currentPage}
                     onChange={handleChange}
                     classes={{indicator: styles.indicator}}
                     textColor="primary"
-                    centered
+                    variant="scrollable"
+                    scrollButtons="on"
                 >
                     <Tab label="Fixtures"
                          className={styles.tabItem}
-                         {...a11yProps(0)}
-                        value="fixtures"
+                         value="fixtures"
                     />
                     {
                         tournament && !tournament.isKnockout &&
                         <Tab label="Table"
                              className={styles.tabItem}
-                             {...a11yProps(1)}
-                            value="table"
+                             value="table"
                         />
                     }
 
                     <Tab label="Teams"
                          className={styles.tabItem}
-                         {...a11yProps(2)}
-                        value="teams"
+                         value="teams"
                     />
                     {
                         !tournament.notSet && tournament.admin.username === user &&
                         <Tab label="ADMIN"
                              className={styles.tabItem}
-                             {...a11yProps(2)}
                              value="admin"
                         />
                     }
@@ -214,6 +209,7 @@ export default function Tournament (props) {
             </AppBar>
             <Box className={styles.tabPanelContainer}>
                 <Switch>
+                    {/*LEAGUE TABLE*/}
                     <Route path="/tournament/:id/table">
                         {
                             isLeague &&
@@ -231,6 +227,7 @@ export default function Tournament (props) {
                             </TabPanel>
                         }
                     </Route>
+                    {/*TOURNAMENT TEAMS*/}
                     <Route path="/tournament/:id/teams">
                         <TabPanel value={currentPage}
                                   index="teams"
@@ -245,6 +242,7 @@ export default function Tournament (props) {
                             }
                         </TabPanel>
                     </Route>
+                    {/*ADMIN PAGE*/}
                     <Route path="/tournament/:id/admin">
                         {
                             tournament.admin.username === user &&
@@ -257,6 +255,7 @@ export default function Tournament (props) {
                             </TabPanel>
                         }
                     </Route>
+                    {/*FIXTURES & RESULTS (DEFAULT)*/}
                     <Route path="/tournament/:id">
                         <TabPanel value={currentPage}
                                   index="fixtures">
