@@ -56,6 +56,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function MyTournaments (props) {
     const {user} = props;
+    const [recentTournaments, setRecent] = useState([]);
     const classes = useStyles();
     const [adminTournaments, setAdminTournaments] = useState([]);
     useEffect(() => {
@@ -64,6 +65,13 @@ export default function MyTournaments (props) {
             .then(result => setAdminTournaments(result))
             .catch(e => console.log(e));
     }, [user]);
+    // load recent list from local storage
+    useEffect(() => {
+        const recent = localStorage.getItem('recentTournaments');
+        if (recent) {
+            setRecent(JSON.parse(recent));
+        }
+    }, [])
     return (
         <React.Fragment>
             <CssBaseline />
@@ -104,12 +112,23 @@ export default function MyTournaments (props) {
                             aria-controls="panel2a-content"
                             id="panel2a-header"
                         >
-                            <Typography className={classes.heading}>Recent</Typography>
+                            <Typography className={classes.heading}>Recent (On this browser)</Typography>
                         </AccordionSummary>
                         <AccordionDetails className={classes.accDetails}>
-                            <Typography>
-                                Lorem ipsum
-                            </Typography>
+                            {
+                                recentTournaments.length === 0 &&
+                                    <Typography>--</Typography>
+                            }
+                            {
+                                recentTournaments.map(tournament => (
+                                    <TournamentItem key={tournament.tournamentId}
+                                                    name={tournament.name}
+                                                    isKnockout={tournament.isKnockout}
+                                                    createdBy={tournament.createdBy}
+                                                    tournamentId={tournament.tournamentId}
+                                    />
+                                ))
+                            }
                         </AccordionDetails>
                     </Accordion>
                     {/*ADMIN*/}
@@ -134,7 +153,10 @@ export default function MyTournaments (props) {
                                 user &&
                                 adminTournaments.map(tournament => (
                                     <TournamentItem key={tournament._id}
-                                                    tournament={tournament}
+                                                    name={tournament.name}
+                                                    isKnockout={tournament.isKnockout}
+                                                    createdBy={tournament.admin.username}
+                                                    tournamentId={tournament._id}
                                     />
                                 ))
                             }
@@ -178,11 +200,11 @@ const useTournamentStyles = makeStyles((theme) => ({
 }));
 
 export function TournamentItem (props) {
-    const {tournament} = props;
+    const {name, createdBy, isKnockout, tournamentId} = props;
     const styles = useTournamentStyles();
     const history = useHistory();
     const navigateToTournament = () => {
-        history.push(`/tournament/${tournament._id}`);
+        history.push(`/tournament/${tournamentId}`);
     }
 
     return (
@@ -194,15 +216,15 @@ export function TournamentItem (props) {
                 variant="contained"
                 onClick={navigateToTournament}
             >
-                <Typography className={styles.name}>{tournament.name}</Typography>
+                <Typography className={styles.name}>{name}</Typography>
             </Button>
             <Typography
                 paragraph={true}
                 className={styles.createdBy}
             >
-                Type: {tournament.isKnockout? "Knockout" : "League"}
+                Type: {isKnockout? "Knockout" : "League"}
                 <br />
-                Created by {tournament.admin.username}
+                Created by {createdBy}
             </Typography>
         </Box>
     )

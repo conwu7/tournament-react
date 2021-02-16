@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -8,6 +8,7 @@ import Paper from "@material-ui/core/Paper";
 import Box from "@material-ui/core/Box";
 import Container from "@material-ui/core/Container";
 import Typography from "@material-ui/core/Typography";
+import {lightGreen} from "@material-ui/core/colors";
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -49,13 +50,18 @@ const useStyles = makeStyles((theme) => ({
     },
     tabPanelContainer: {
         marginTop: 10
+    },
+    appBarContainer: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
     }
 }));
 
 export function LeagueFixtures (props) {
     const {teams, fixtures, useTwoLegs} = props;
     const classes = useStyles();
-    const [value, setValue] = React.useState(0);
+    const [value, setValue] = useState(0);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -63,14 +69,14 @@ export function LeagueFixtures (props) {
 
     return (
         <Paper className={classes.root}>
-            <AppBar position="static" color="default">
+            <AppBar position="static" color="default" className={classes.appBarContainer}>
                 <Tabs
                     value={value}
                     onChange={handleChange}
                     indicatorColor="primary"
                     textColor="primary"
                     variant="scrollable"
-                    scrollButtons="auto"
+                    scrollButtons="on"
                     aria-label="scrollable auto tabs example"
                 >
                     {
@@ -90,7 +96,7 @@ export function LeagueFixtures (props) {
                                   value={value}
                                   key={index}
                         >
-                            <TeamResults
+                            <LeagueTeamResults
                                 teamFixtures={fixtures[index]}
                                 teams={teams}
                                 useTwoLegs={useTwoLegs}
@@ -102,6 +108,80 @@ export function LeagueFixtures (props) {
             </Box>
         </Paper>
     );
+}
+
+const roundLabels = {
+    roundOf32: 'Round of 32',
+    roundOf16: 'Last 16',
+    roundOf8: 'Quarter-Finals',
+    roundOf4: 'Semi-Finals',
+    roundOf2: 'Final'
+}
+
+export function KnockoutFixtures (props) {
+    const {teams, fixtures, useTwoLegs} = props;
+    const {startingRound, currentRound} = fixtures;
+    const classes = useStyles();
+    const [value, setValue] = useState(0);
+    const [availableRounds, setAvailableRounds] = useState([]);
+
+    useEffect(() => {
+        if (!startingRound || !currentRound) return
+        let startingNumber = parseInt(startingRound.slice(7));
+        const currentNumber = parseInt(currentRound.slice(7));
+        let roundsArray = [];
+        do {
+            roundsArray.push(`roundOf${startingNumber}`);
+            startingNumber /= 2;
+        } while (startingNumber >= currentNumber);
+        setAvailableRounds(roundsArray);
+    }, [startingRound, currentRound])
+
+    const handleChange = (event, newValue) => {
+        setValue(newValue);
+    };
+
+    if (availableRounds.length === 0) return null
+    return (
+        <Paper className={classes.root}>
+            <AppBar position="sticky" color="default" className={classes.appBarContainer}>
+                <Tabs
+                    value={value}
+                    onChange={handleChange}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    variant="scrollable"
+                    scrollButtons="on"
+                    aria-label="scrollable auto tabs example"
+                >
+                    {
+                        availableRounds.map((team, index) => (
+                            <Tab
+                                key={index}
+                                label={roundLabels[team]}
+                                {...a11yProps(index)} />
+                        ))
+                    }
+                </Tabs>
+            </AppBar>
+            <Box className={classes.tabPanelContainer}>
+                {
+                    availableRounds.map((round, index) => (
+                        <TabPanel index={index}
+                                  value={value}
+                                  key={index}
+                        >
+                            <KnockoutTeamResults
+                                roundFixtures={fixtures[round]}
+                                teams={teams}
+                                useTwoLegs={useTwoLegs}
+                            />
+                        </TabPanel>
+                    ))
+                }
+            </Box>
+        </Paper>
+    )
 }
 
 const useResults = makeStyles((theme) => ({
@@ -118,13 +198,14 @@ const useResults = makeStyles((theme) => ({
         justifyContent: "space-evenly",
     },
     resultSet: {
+        minWidth: "40%",
         marginBottom: 15,
-        width: 350,
         backgroundColor: "whitesmoke"
     },
     resultBox: {
         display: "flex",
-        height: 45,
+        minHeight: 45,
+        padding: 5,
         justifyContent: "center",
         alignItems: "center"
     },
@@ -153,15 +234,80 @@ const useResults = makeStyles((theme) => ({
     awayTeam: {
         textAlign: "left",
         paddingLeft: 10
+    },
+    advanced: {
+        color: "seagreen"
     }
 }));
 
-function TeamResults (props) {
+function KnockoutTeamResults (props) {
+    const {roundFixtures, teams, useTwoLegs} = props;
+    const styles = useResults();
+    return (
+        <Container className={styles.resultsContainer} >
+            {
+                useTwoLegs &&
+                roundFixtures.map((fixture, index) => {
+                    if (index % 2 === 1) return null
+                    let firstTeam, secondTeam, automaticWinner;
+                    if (fixture.isEmpty) {
+                        firstTeam = secondTeam = "(empty)";
+                    } else if (roundFixtures[fixture.opponentIndex].isEmpty) {
+                        firstTeam = teams[fixture.teamIndex].teamName;
+                        secondTeam = "(empty)";
+                        automaticWinner = true;
+                    } else {
+                        firstTeam = teams[fixture.teamIndex].teamName;
+                        secondTeam = teams[roundFixtures[fixture.opponentIndex].teamIndex].teamName;
+                    }
+                    return (
+                        <Paper key={index} className={styles.resultSet}>
+                            <Result
+                                home={firstTeam}
+                                away={secondTeam}
+                                homeAutoAdvance={automaticWinner}
+                                goalsFor={fixture.home.goalsFor || "-"}
+                                goalsAgainst={fixture.home.goalsAgainst || "-"}
+                            />
+                            <Result
+                                home={secondTeam}
+                                away={firstTeam}
+                                awayAutoAdvance={automaticWinner}
+                                goalsFor={fixture.away.goalsAgainst || "-"}
+                                goalsAgainst={fixture.away.goalsFor || "-"}
+                            />
+                        </Paper>
+                    )
+                })
+            }
+            {
+                !useTwoLegs &&
+                roundFixtures.map((fixture, index) => {
+                    if (index % 2 === 1) return null
+                    const firstTeam = teams[fixture.teamIndex].teamName;
+                    const secondTeam = teams[roundFixtures[fixture.opponentIndex].teamIndex].teamName;
+                    return (
+                        <Paper key={index} className={styles.resultSet}>
+                            <Result
+                                home={firstTeam}
+                                away={secondTeam}
+                                goalsFor={fixture.neutral.goalsFor || "-"}
+                                goalsAgainst={fixture.neutral.goalsAgainst || "-"}
+                            />
+                        </Paper>
+                    )
+                })
+            }
+        </Container>
+    )
+}
+
+function LeagueTeamResults (props) {
     const {teamFixtures, teamName, teams, useTwoLegs} = props;
     const styles = useResults();
     return (
         <Container className={styles.resultsContainer}>
-        {
+            {
                 useTwoLegs &&
                 teamFixtures.home.map((fixture, index) => {
                     if (fixture && fixture.isSameTeam) return null
@@ -189,17 +335,44 @@ function TeamResults (props) {
                     )
                 })
             }
+            {
+                !useTwoLegs &&
+                teamFixtures.neutral.map((fixture, index) => {
+                    if (fixture && fixture.isSameTeam) return null
+                    return (
+                        <Paper key={index} className={styles.resultSet}>
+                            {/*neutral result*/}
+                            <Result
+                                home={teamName}
+                                away={teams[index].teamName}
+                                goalsFor={fixture && fixture.goalsFor}
+                                goalsAgainst={fixture && fixture.goalsAgainst}
+                            />
+                        </Paper>
+                    )
+                })
+            }
         </Container>
     )
 }
 
 function Result (props) {
     const styles = useResults();
-    const {home, away, goalsFor, goalsAgainst} = props;
+    const {home, away, goalsFor, goalsAgainst, homeAutoAdvance, awayAutoAdvance} = props;
     return (
         <Box className={styles.resultBox}>
             <Typography className={`${styles.team} ${styles.homeTeam}`}>
                 {home}
+                {
+                    homeAutoAdvance &&
+                    <>
+                        <br />
+                        <span className={styles.advanced}
+                             component="span"
+                        >(auto adv)
+                        </span>
+                    </>
+                }
             </Typography>
             <Typography className={styles.goals}>
                 {isNaN(parseInt(goalsFor)) ? "-" : goalsFor}
@@ -209,6 +382,16 @@ function Result (props) {
             </Typography>
             <Typography className={`${styles.team} ${styles.awayTeam}`}>
                 {away}
+                {
+                    awayAutoAdvance &&
+                    <>
+                        <br />
+                        <span className={styles.advanced}
+                             component="span"
+                        >(auto adv)
+                        </span>
+                    </>
+                }
             </Typography>
         </Box>
     )

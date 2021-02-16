@@ -72,13 +72,14 @@ export default function Admin (props) {
 
     return (
         <Paper className={classes.root}>
-            <AppBar position="static" color="default">
+            <AppBar position="sticky" color="default" >
                 <Tabs
                     value={value}
                     onChange={handleChange}
                     indicatorColor="primary"
                     textColor="primary"
                     centered
+                    variant="fullWidth"
                 >
                     <Tab label="actions" value="actions" />
                     <Tab label="Settings" value="settings"/>
@@ -222,7 +223,7 @@ function UpdateTeams (props) {
     return (
         <Grid container spacing={2} className={styles.container}>
             <WaitForServer wait={loading} />
-            <Grid item xs={4}>
+            <Grid item xs={3}>
                 <Typography>Number of Teams</Typography>
             </Grid>
             <Grid item xs={2}>
@@ -253,7 +254,7 @@ function UpdateTeams (props) {
                     disabled={disableNumberChange}
                 />
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={4}>
                 <Button color="primary"
                         variant="outlined"
                         onClick={handleApplyAndEnableButton}
@@ -373,6 +374,7 @@ const useAdminActionsStyle = makeStyles((theme) => ({
     },
     actionSet: {
         display: "flex",
+        flexWrap: "wrap",
         justifyContent: "center",
         alignItems: "center",
         width: "100%",
@@ -382,6 +384,12 @@ const useAdminActionsStyle = makeStyles((theme) => ({
         paddingBottom: 10,
         paddingRight: 5,
         backgroundColor: "wheat"
+    },
+    resetContainer: {
+        display: "flex",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        width: '100%'
     },
     submit: {
         margin: 15,
@@ -393,18 +401,67 @@ const useAdminActionsStyle = makeStyles((theme) => ({
     },
     moreInfo: {
         flex: 0.7
+    },
+    confirmActionInput: {
+        flex: 0.7,
+        marginRight: 20
+    },
+    actionButtonLabel: {
+        fontSize: 15
     }
 
 }));
 
 function AdminActions (props) {
-    const {setAdminPage, tournamentId} = props;
+    const {setAdminPage, tournamentId, tournament} = props;
     const [loading, setLoading] = useState(false);
+    const [isResettingFixtures, setResettingFixtures] = useState(false);
+    const [isResettingRound, setResettingRound] = useState(false);
+    const [isDeleting, setDeleting] = useState(false);
+
     const handleGenerateLeagueFixtures = () => {
-        basicFetch(`tournament/${tournamentId}/leagueFixtures`, 'post',{}, setLoading, true, true);
+        const onSuccess = () => window.location.href = `tournament/${tournamentId}/fixtures`
+        const url = `tournament/${tournamentId}/leagueFixtures`;
+        basicFetch(url, 'post',{}, setLoading, false, true, onSuccess);
+    }
+    const handleGenerateKnockoutFixtures = () => {
+        const onSuccess = () => window.location.href = `tournament/${tournamentId}/fixtures`;
+        const url = `tournament/${tournamentId}/knockoutFixtures`;
+        basicFetch(url, 'post',{}, setLoading, false, true, onSuccess);
+    }
+    const toggleResetForm = () => {
+        setResettingFixtures(prevState => !prevState);
     }
     const handleResetAllFixtures = () => {
-        basicFetch(`tournament/${tournamentId}/resetAllFixtures`, 'delete', {}, setLoading, true, true);
+        const reset = ['reset', 'Reset', 'RESET'];
+        if (!reset.includes(document.getElementById('confirmReset').value )) {
+            return alert("Type 'reset' to complete this action");
+        }
+        const url = `tournament/${tournamentId}/resetAllFixtures`;
+        basicFetch(url, 'delete', {}, setLoading, true, true);
+    }
+    const toggleResetRound = () => {
+        setResettingRound(prevState => !prevState);
+    }
+    const handleResetRound = () => {
+        const reset = ['round', 'Round', 'ROUND'];
+        if (!reset.includes(document.getElementById('confirmResetRound').value )) {
+            return alert("Type 'round' to complete this action");
+        }
+        const url = `tournament/${tournamentId}/resetRound?round=${tournament.currentRound}`;
+        basicFetch(url, 'delete', {}, setLoading, true, true);
+    }
+    const toggleDelete = () => {
+        setDeleting(prevState => !prevState);
+    }
+    const handleDelete = () => {
+        const allowedValues = ['delete', 'Delete', 'DELETE'];
+        if (!allowedValues.includes(document.getElementById('confirmDelete').value)) {
+            return alert("Type 'delete' to complete this action");
+        }
+        const url = `tournament/${tournamentId}`
+        const onSuccess = () => window.location.href = "/";
+        basicFetch(url, 'delete', {}, setLoading, false, true, onSuccess);
     }
     const handleAdminNavigation = (newPage) => {
         return () => setAdminPage(newPage);
@@ -413,134 +470,158 @@ function AdminActions (props) {
     return (
         <Container className={styles.container}>
             <WaitForServer wait={loading} />
-            <Paper className={styles.actionSet}>
-                <Button
-                    type="button"
-                    variant="contained"
-                    color="secondary"
-                    className={styles.submit}
-                    onClick={handleGenerateLeagueFixtures}
-                    fullWidth={true}
-                >
-                    <Typography className={styles.actionButtonLabel}>
-                        Generate League Fixtures
-                    </Typography>
-                </Button>
-                <Typography className={styles.moreInfo}>
-                    Create fixtures for all teams.
-                    <br />
-                    All teams are required to have a name before fixtures can be generated.
-                    <br />
-                    If tournament is using two legs, each encounter will have a home and away match.
-                    <br />
-                    You will be unable to change team names after performing this action.
-                </Typography>
-            </Paper>
+            <ActionSet primaryButtonText={"Change Tournament Settings"}
+                       onClickPrimary={handleAdminNavigation('settings')}
+                       useSecondary={false}
+                       moreInfoComponent={<Typography className={styles.moreInfo}>
+                           Modify tournament settings.
+                           <br />
+                           <br />
+                           Some settings will be disabled if tournament is already in progress.
+                       </Typography>}
+            />
+            <ActionSet primaryButtonText={"Update Team/Player Names"}
+                       onClickPrimary={handleAdminNavigation('teams')}
+                       useSecondary={false}
+                       moreInfoComponent={<Typography className={styles.moreInfo}>
+                           Add teams and their owners (player names).
+                           <br />
+                           <br />
+                           All teams are required to have a name for fixtures can be generated.
+                       </Typography>}
+            />
+            {
+                tournament.isKnockout &&
+                    <>
+                        <ActionSet primaryButtonText={"Generate next knockout round fixtures"}
+                                   onClickPrimary={handleGenerateKnockoutFixtures}
+                                   useSecondary={false}
+                                   disabled={!tournament.isKnockout || !!tournament.currentRound}
+                                   moreInfoComponent={<Typography className={styles.moreInfo}>
+                                       Create fixtures for the next round using the existing teams or winners from the last round.
+                                       <br />
+                                       <br />
+                                       All teams are required to have a name before fixtures can be generated.
+                                       <br />
+                                       You will be unable to change team names after performing this action.
+                                   </Typography>}
+                        />
+                        {/*RESETTING CURRENT ROUND*/}
+                        <ActionSet primaryButtonText={"Reset Current Round"}
+                                   secondaryButtonText={"Confirm Reset"}
+                                   onClickPrimary={toggleResetRound}
+                                   onClickSecondary={handleResetRound}
+                                   color={"secondary"}
+                                   useSecondary={isResettingRound}
+                                   disabled={!tournament.isKnockout || !tournament.currentRound}
+                                   inputId={"confirmResetRound"}
+                                   inputLabel={"Type 'round' to confirm this action"}
+                                   moreInfoComponent={<Typography className={styles.moreInfo}>
+                                       Clear current round fixtures and go back to previous round.
+                                   </Typography>}
+                        />
+                    </>
+            }
+            {
+                !tournament.isKnockout &&
+                <ActionSet primaryButtonText={"Generate League Fixtures"}
+                           onClickPrimary={handleGenerateLeagueFixtures}
+                           useSecondary={false}
+                           disabled={tournament.isKnockout || tournament.hasLeagueFixturesGenerated}
+                           moreInfoComponent={<Typography className={styles.moreInfo}>
+                               Create league fixtures for all teams.
+                               <br />
+                               <br />
+                               All teams are required to have a name before fixtures can be generated.
+                               <br />
+                               You will be unable to change team names after performing this action.
+                           </Typography>}
+                />
+            }
 
-            <Paper className={styles.actionSet}>
-                <Button
-                    type="button"
-                    variant="contained"
-                    color="secondary"
-                    className={styles.submit}
-                    onClick={handleResetAllFixtures}
-                    fullWidth={true}
-                >
-                    <Typography className={styles.actionButtonLabel}>
-                        Reset All Fixtures
-                    </Typography>
-                </Button>
-                <Typography className={styles.moreInfo}>
-                    Clear all generated fixtures.
-                </Typography>
-            </Paper>
-
-            <Paper className={styles.actionSet}>
-                <Button
-                    type="button"
-                    variant="contained"
-                    color="secondary"
-                    className={styles.submit}
-                    onClick={handleAdminNavigation('settings')}
-                    fullWidth={true}
-                >
-                    <Typography className={styles.actionButtonLabel}>
-                        Change Tournament Settings
-                    </Typography>
-                </Button>
-                <Typography className={styles.moreInfo}>
-                    Modify tournament settings.
-                    <br />
-                    Some settings will be disabled if tournament is already in progress.
-                </Typography>
-            </Paper>
-            <Paper className={styles.actionSet}>
-                <Button
-                    type="button"
-                    variant="contained"
-                    color="secondary"
-                    className={styles.submit}
-                    onClick={handleAdminNavigation('teams')}
-                    fullWidth={true}
-                >
-                    <Typography className={styles.actionButtonLabel}>
-                        Update Player and Team Names
-                    </Typography>
-                </Button>
-                <Typography className={styles.moreInfo}>
-                    Add teams and their owners (player names).
-                    <br />
-                    All teams are required to have a name for fixtures can be generated.
-                </Typography>
-            </Paper>
-
-            {/*<Box className={styles.actionSet}>*/}
-            {/*    <Button*/}
-            {/*        type="button"*/}
-            {/*        variant="contained"*/}
-            {/*        color="secondary"*/}
-            {/*        className={styles.submit}*/}
-            {/*        onClick={undefined}*/}
-            {/*        fullWidth={true}*/}
-            {/*    >*/}
-            {/*        Save*/}
-            {/*    </Button>*/}
-            {/*    <Typography className={styles.moreInfo}>*/}
-            {/*        Show real club options when adding teams*/}
-            {/*    </Typography>*/}
-            {/*</Box>*/}
-
-            {/*<Box className={styles.actionSet}>*/}
-            {/*    <Button*/}
-            {/*        type="button"*/}
-            {/*        variant="contained"*/}
-            {/*        color="secondary"*/}
-            {/*        className={styles.submit}*/}
-            {/*        onClick={undefined}*/}
-            {/*        fullWidth={true}*/}
-            {/*    >*/}
-            {/*        Save*/}
-            {/*    </Button>*/}
-            {/*    <Typography className={styles.moreInfo}>*/}
-            {/*        Show real club options when adding teams*/}
-            {/*    </Typography>*/}
-            {/*</Box>*/}
-
-            {/*<Box className={styles.actionSet}>*/}
-            {/*    <Button*/}
-            {/*        type="button"*/}
-            {/*        variant="contained"*/}
-            {/*        color="secondary"*/}
-            {/*        className={styles.submit}*/}
-            {/*        onClick={undefined}*/}
-            {/*        fullWidth={true}*/}
-            {/*    >*/}
-            {/*        Save*/}
-            {/*    </Button>*/}
-            {/*    <Typography className={styles.moreInfo}>*/}
-            {/*        Show real club options when adding teams*/}
-            {/*    </Typography>*/}
-            {/*</Box>*/}
+            {/*RESETTING ALL FIXTURES*/}
+            <ActionSet primaryButtonText={"Reset All Fixtures"}
+                       secondaryButtonText={"Confirm Reset"}
+                       onClickPrimary={toggleResetForm}
+                       onClickSecondary={handleResetAllFixtures}
+                       color={"secondary"}
+                       useSecondary={isResettingFixtures}
+                       disabled={!tournament.hasLeagueFixturesGenerated && !tournament.currentRound}
+                       inputId={"confirmReset"}
+                       inputLabel={"Type 'reset' to confirm this action"}
+                       moreInfoComponent={<Typography className={styles.moreInfo}>
+                           Clear all generated fixtures.
+                       </Typography>}
+            />
+            {/*DELETING TOURNAMENT*/}
+            <ActionSet primaryButtonText={"Delete Tournament"}
+                       secondaryButtonText={"Confirm Delete"}
+                       onClickPrimary={toggleDelete}
+                       onClickSecondary={handleDelete}
+                       color={"secondary"}
+                       useSecondary={isDeleting}
+                       inputId={"confirmDelete"}
+                       inputLabel={"Type 'delete' to confirm this action"}
+                       moreInfoComponent={<Typography className={styles.moreInfo}>
+                           Delete tournament and data associated with it.
+                       </Typography>}
+            />
         </Container>
+    )
+}
+function ActionSet (props) {
+    const styles = useAdminActionsStyle();
+    const {onClickPrimary, disabled, primaryButtonText, moreInfoComponent,
+            useSecondary, onClickSecondary, secondaryButtonText,
+            inputName, inputId, inputLabel, color} = props;
+    return (
+        <Paper className={styles.actionSet}>
+            <div className={styles.resetContainer}>
+                <Button
+                    type="button"
+                    variant="contained"
+                    color={color || "primary"}
+                    className={styles.submit}
+                    onClick={onClickPrimary}
+                    fullWidth={true}
+                    disabled={disabled}
+                >
+                    <Typography className={styles.actionButtonLabel}>
+                        {primaryButtonText}
+                    </Typography>
+                </Button>
+                {moreInfoComponent}
+            </div>
+            {
+                useSecondary &&
+                <div className={styles.resetContainer}>
+                    <Button
+                        type="button"
+                        variant="contained"
+                        color={"primary"}
+                        className={styles.submit}
+                        onClick={onClickSecondary}
+                        fullWidth={true}
+                    >
+                        <Typography className={styles.actionButtonLabel}>
+                            {secondaryButtonText}
+                        </Typography>
+                    </Button>
+                    <TextField
+                        autoComplete="confirm reset round"
+                        name={inputName}
+                        variant="outlined"
+                        required
+                        fullWidth
+                        id={inputId}
+                        label={inputLabel}
+                        // inputProps={{}}
+                        className={styles.confirmActionInput}
+                        // value={}
+                        // onChange={onChange}
+                    />
+                </div>
+            }
+        </Paper>
     )
 }

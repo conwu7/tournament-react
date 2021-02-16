@@ -12,6 +12,7 @@ import SignUp from "./components/pages/sign-up";
 import Login from "./components/pages/login";
 import {fetchApi} from "./helpers/common";
 
+import appStyle from './stylesheets/app.module.scss';
 import './stylesheets/reset.css';
 import WaitForServer from "./components/loading";
 import MyTournaments from "./components/pages/my-tournaments";
@@ -42,36 +43,37 @@ function App() {
             .catch(e => console.log(e))
     }, []);
     return (
-        <div className="App">
+        <div className={`App app ${appStyle.app}`} id="app">
             <WaitForServer wait={waiting} />
             <Router>
               <NavBar user={user}/>
-              <div style={{padding: "32px"}}/>
-                {
-                    isUserCheckDone &&
-                    <Switch>
-                        <Route path="/signup">
-                            {user && <Redirect to="/" />}
-                            <SignUp />
-                        </Route>
-                        <Route path="/login">
-                            {user && <Redirect to="/" />}
-                            <Login />
-                        </Route>
-                        <Route path="/search">
+              <div className={appStyle.belowNavBarContainer} id="mainContent">
+                  {
+                      isUserCheckDone &&
+                      <Switch>
+                          <Route path="/signup">
+                              {user && <Redirect to="/" />}
+                              <SignUp />
+                          </Route>
+                          <Route path="/login">
+                              {user && <Redirect to="/" />}
+                              <Login />
+                          </Route>
+                          <Route path="/search">
 
-                        </Route>
-                        <Route path="/new">
-                            <CreateNew />
-                        </Route>
-                        <Route path="/tournament/:id">
-                            <TournamentIdHandler user={user}/>
-                        </Route>
-                        <Route path="/">
-                            <MyTournaments user={user} />
-                        </Route>
-                    </Switch>
-                }
+                          </Route>
+                          <Route path="/new">
+                              <CreateNew user={user} />
+                          </Route>
+                          <Route path="/tournament/:id">
+                              <TournamentIdHandler user={user}/>
+                          </Route>
+                          <Route path="/">
+                              <MyTournaments user={user} />
+                          </Route>
+                      </Switch>
+                  }
+              </div>
             </Router>
         </div>
     );

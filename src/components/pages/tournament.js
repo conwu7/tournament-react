@@ -12,7 +12,7 @@ import Button from "@material-ui/core/Button";
 import {AppBar} from "@material-ui/core";
 import {Switch, Route, useHistory, useLocation} from 'react-router-dom';
 
-import {LeagueFixtures} from "../fixtures";
+import {KnockoutFixtures, LeagueFixtures} from "../fixtures";
 import LeagueTable from "../league-table";
 import Admin from "../admin";
 
@@ -46,7 +46,7 @@ function a11yProps(index) {
 const useStyles = makeStyles((theme) => ({
     root: {
         paddingTop: 10,
-        paddingBottom: 10
+        paddingBottom: 10,
     },
     pageHeader: {
         color: "darkslategray",
@@ -130,6 +130,28 @@ export default function Tournament (props) {
         getTournamentAndFixtures()
             .catch(undefined);
     }, [getTournamentAndFixtures]);
+    // add to recent list using local storage
+    useEffect(() => {
+
+        if (tournament && !tournament.notSet && !tournament.notFound) {
+            const tournamentObj = {
+                name: tournament.name,
+                createdBy: tournament.admin.username,
+                isKnockout: tournament.isKnockout,
+                tournamentId: tournament._id
+            }
+            let recentTournaments = localStorage.getItem('recentTournaments');
+            if (recentTournaments) recentTournaments = JSON.parse(recentTournaments);
+            else recentTournaments = [];
+            const isAlreadyInRecent = recentTournaments.some(item => {
+                return item.tournamentId === tournament._id;
+            })
+            if (isAlreadyInRecent) return
+            if (recentTournaments.length > 4) recentTournaments.pop();
+            recentTournaments.unshift(tournamentObj);
+            localStorage.setItem('recentTournaments', JSON.stringify(recentTournaments));
+        }
+    }, [tournament])
     if (tournament.notFound) return (
         <Container maxWidth="lg" className={styles.root}>
             <Typography>TOURNAMENT NOT FOUND</Typography>
@@ -142,7 +164,8 @@ export default function Tournament (props) {
     )
     if (currentPage === "admin" && !tournament.notSet && !tournament.notFound &&
         tournament.admin.username !== user) {
-        setCurrentPage('fixtures');
+        // setCurrentPage('fixtures');
+        window.location.href = `/tournament/${tournamentId}`;
     }
     return (
         <Container maxWidth="lg" className={styles.root}>
@@ -152,7 +175,7 @@ export default function Tournament (props) {
                     {tournament.name}
                 </Typography>
             </Paper>
-            <AppBar position="static" color="default">
+            <AppBar position="sticky" color="default">
                 <Tabs
                     value={currentPage}
                     onChange={handleChange}
@@ -223,29 +246,40 @@ export default function Tournament (props) {
                         </TabPanel>
                     </Route>
                     <Route path="/tournament/:id/admin">
-                        <TabPanel value={currentPage}
-                                  index="admin"
-                                  >
-                            <Admin tournament={tournament}
-                                   tournamentId={tournamentId}
-                            />
-                        </TabPanel>
+                        {
+                            tournament.admin.username === user &&
+                            <TabPanel value={currentPage}
+                                      index="admin"
+                            >
+                                <Admin tournament={tournament}
+                                       tournamentId={tournamentId}
+                                />
+                            </TabPanel>
+                        }
                     </Route>
                     <Route path="/tournament/:id">
                         <TabPanel value={currentPage}
                                   index="fixtures">
                             {
-                                !tournament.hasLeagueFixturesGenerated &&
+                                !tournament.hasLeagueFixturesGenerated && !tournament.currentRound &&
                                 <Paper className={styles.noFixtures}>
                                     Fixtures have not been generated yet.
                                 </Paper>
                             }
                             {
-                                isLeague && tournament.hasLeagueFixturesGenerated &&
+                                tournament.hasLeagueFixturesGenerated &&
                                 !fixturesDocument.notSet &&
                                 <LeagueFixtures
                                     teams={teams}
                                     fixtures={fixturesDocument.leagueFixtures}
+                                    useTwoLegs={tournament.useTwoLegs}
+                                />
+                            }
+                            {
+                                tournament.currentRound && !fixturesDocument.notSet &&
+                                <KnockoutFixtures
+                                    teams={teams}
+                                    fixtures={fixturesDocument}
                                     useTwoLegs={tournament.useTwoLegs}
                                 />
                             }

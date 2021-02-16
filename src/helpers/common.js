@@ -24,15 +24,21 @@ export async function fetchApi (url, method, values) {
         }
     })
 }
-export function basicFetch (url, method, values, loadingFunction, reloadOnSuccess, alertOnFailure) {
+export function basicFetch (url, method, values, loadingFunction, reloadOnSuccess, alertOnFailure, onSuccess, onFailure) {
     loadingFunction(true);
     setTimeout(async () => {
         try {
-            await fetchApi(url, method);
+            await fetchApi(url, method, values);
             if (reloadOnSuccess) {
                 window.location.reload();
             }
+            if (onSuccess) {
+                onSuccess();
+            }
         } catch (e) {
+            if (onFailure) {
+                onFailure();
+            }
             if (alertOnFailure) {
                 alert(e);
             }

@@ -15,7 +15,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import {useFormik} from "formik";
 import {fetchApi} from "../../helpers/common";
-import {useHistory} from "react-router-dom";
+import {useHistory, Link} from "react-router-dom";
 import WaitForServer from "../loading";
 
 const useStyles = makeStyles((theme) => ({
@@ -70,13 +70,13 @@ export default function CreateNew(props) {
 
     return (
         <TournamentForm isCreating={true}
-
+                        user={props.user}
         />
     )
 }
 
 export function TournamentForm (props) {
-    let {isCreating, tournament} = props;
+    let {isCreating, tournament, user} = props;
     tournament = tournament || {};
     const {isKnockout, useRealTeams, useTwoLegs, useOneFinal, useAwayGoals,
         name, _id: tournamentId, hasLeagueFixturesGenerated, currentRound} = tournament;
@@ -129,6 +129,20 @@ export function TournamentForm (props) {
             }, 2000);
         }
     });
+    if (isCreating && !user) {
+        return (
+            <Container component="main"
+                       maxWidth="md"
+                       style={{padding: "30px"}}
+            >
+                <Typography>
+                    <Link to="/login">
+                        Log in to create tournaments.
+                    </Link>
+                </Typography>
+            </Container>
+        )
+    }
     return (
         <Container component="main" maxWidth="md">
             <CssBaseline />
