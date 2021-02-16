@@ -243,23 +243,27 @@ const useResults = makeStyles((theme) => ({
 function KnockoutTeamResults (props) {
     const {roundFixtures, teams, useTwoLegs} = props;
     const styles = useResults();
+    const setTeamNames = (fixture, teams) => {
+        let firstTeam, secondTeam, automaticWinner;
+        if (fixture.isEmpty) {
+            firstTeam = secondTeam = "(empty)";
+        } else if (roundFixtures[fixture.opponentIndex].isEmpty) {
+            firstTeam = teams[fixture.teamIndex].teamName;
+            secondTeam = "(empty)";
+            automaticWinner = true;
+        } else {
+            firstTeam = teams[fixture.teamIndex].teamName;
+            secondTeam = teams[roundFixtures[fixture.opponentIndex].teamIndex].teamName;
+        }
+        return {firstTeam, secondTeam, automaticWinner};
+    }
     return (
         <Container className={styles.resultsContainer} >
             {
                 useTwoLegs &&
                 roundFixtures.map((fixture, index) => {
                     if (index % 2 === 1) return null
-                    let firstTeam, secondTeam, automaticWinner;
-                    if (fixture.isEmpty) {
-                        firstTeam = secondTeam = "(empty)";
-                    } else if (roundFixtures[fixture.opponentIndex].isEmpty) {
-                        firstTeam = teams[fixture.teamIndex].teamName;
-                        secondTeam = "(empty)";
-                        automaticWinner = true;
-                    } else {
-                        firstTeam = teams[fixture.teamIndex].teamName;
-                        secondTeam = teams[roundFixtures[fixture.opponentIndex].teamIndex].teamName;
-                    }
+                    const {firstTeam, secondTeam, automaticWinner} = setTeamNames(fixture, teams);
                     return (
                         <Paper key={index} className={styles.resultSet}>
                             <Result
@@ -284,13 +288,13 @@ function KnockoutTeamResults (props) {
                 !useTwoLegs &&
                 roundFixtures.map((fixture, index) => {
                     if (index % 2 === 1) return null
-                    const firstTeam = teams[fixture.teamIndex].teamName;
-                    const secondTeam = teams[roundFixtures[fixture.opponentIndex].teamIndex].teamName;
+                    const {firstTeam, secondTeam, automaticWinner} = setTeamNames(fixture, teams);
                     return (
                         <Paper key={index} className={styles.resultSet}>
                             <Result
                                 home={firstTeam}
                                 away={secondTeam}
+                                homeAutoAdvance={automaticWinner}
                                 goalsFor={fixture.neutral.goalsFor || "-"}
                                 goalsAgainst={fixture.neutral.goalsAgainst || "-"}
                             />
