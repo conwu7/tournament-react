@@ -3,38 +3,20 @@ import Container from "@material-ui/core/Container";
 import {makeStyles} from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
+import FavoriteIcon from '@material-ui/icons/Favorite';
 import WaitForServer from "../loading";
-import {fetchApi} from "../../helpers/common";
+import {basicFetch, fetchApi} from "../../helpers/common";
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import Button from "@material-ui/core/Button";
 import {AppBar} from "@material-ui/core";
-import {Switch, Route, useHistory, useLocation} from 'react-router-dom';
+import {Switch, Route, useHistory, useLocation, Link} from 'react-router-dom';
 
 import {KnockoutFixtures, LeagueFixtures} from "../fixtures";
 import LeagueTable from "../league-table";
 import Admin from "../admin";
-
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-        <div
-            role="tabpanel"
-            hidden={value !== index}
-            id={`scrollable-auto-tabpanel-${index}`}
-            aria-labelledby={`scrollable-auto-tab-${index}`}
-            {...other}
-        >
-            {value === index && (
-                <>
-                    {children}
-                </>
-            )}
-        </div>
-    );
-}
+import TabPanel from "../tab-panel";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -49,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: "bold"
     },
     indicator: {
-        backgroundColor: "darkslategray",
+        background: "firebrick",
     },
     appBarContainer: {
         display: "flex",
@@ -81,6 +63,7 @@ export default function Tournament (props) {
     const styles = useStyles();
     const [loading, setLoadingStatus] = useState(false);
     const [tournament, setTournament] = useState({notSet: true});
+    const [isTournamentAFavorite, setFavorite] = useState(false);
     const [isLeague, setLeague] = useState(false);
     const [teams, setTeams] = useState([]);
     const [fixturesDocument, setFixturesDoc] = useState({notSet: true});
@@ -95,7 +78,7 @@ export default function Tournament (props) {
     const handleChange = (event, newValue) => {
         setCurrentPage(newValue);
         const baseUrl = `/tournament/${tournamentId}`;
-        if (newValue === "fixtures") {
+        if (newValue === "fixtures" || newValue === "favorites") {
             history.push(`${baseUrl}`)
         } else {
             history.push(`${baseUrl}/${newValue}`);
@@ -124,10 +107,26 @@ export default function Tournament (props) {
             setTimeout(()=>setLoadingStatus(false), 100);
         }
     }, [tournamentId])
+    // get tournament and fixtures on mount
     useEffect(() => {
         getTournamentAndFixtures()
             .catch(undefined);
     }, [getTournamentAndFixtures]);
+    // find if tournament is a favorite
+    useEffect(() => {
+        if (!user) return
+        fetchApi(`tournament/${tournamentId}/isFavorite`, 'get')
+            .then(result => setFavorite(result))
+            .catch(e => console.log(e));
+    }, [tournamentId, user]);
+    const handleAddToFav = () => {
+        basicFetch(`tournament/${tournamentId}/favorites`,'post',{},setLoadingStatus);
+        setFavorite(true);
+    }
+    const handleRemoveFromFav =() => {
+        basicFetch(`tournament/${tournamentId}/favorites`, 'delete',{},setLoadingStatus);
+        setFavorite(false);
+    }
     // add to recent list using local storage
     useEffect(() => {
 
@@ -182,6 +181,9 @@ export default function Tournament (props) {
                     variant="scrollable"
                     scrollButtons="on"
                 >
+                    <Tab icon={<FavoriteIcon color={currentPage==="favorites"?"secondary":"disabled"}/>}
+                         aria-label="favorites"
+                         value="favorites"/>
                     <Tab label="Fixtures"
                          className={styles.tabItem}
                          value="fixtures"
@@ -255,8 +257,32 @@ export default function Tournament (props) {
                             </TabPanel>
                         }
                     </Route>
-                    {/*FIXTURES & RESULTS (DEFAULT)*/}
+                    {/*FIXTURES & RESULTS (DEFAULT) TAB AND FAVORITES TAB*/}
                     <Route path="/tournament/:id">
+                        {/*FAVORITES*/}
+                        <TabPanel value={currentPage} index="favorites">
+                            {
+                                !user &&
+                                <Typography>
+                                    <Link to="/login">
+                                        Sign in to view your favorites
+                                    </Link>
+                                </Typography>
+                            }
+                            {
+                                user &&
+                                <Button type="button"
+                                        variant="contained"
+                                        color={isTournamentAFavorite?"primary":"secondary"}
+                                        className={styles.submit}
+                                        onClick={isTournamentAFavorite?handleRemoveFromFav:handleAddToFav}
+                                        fullWidth={true}
+                                >
+                                    {isTournamentAFavorite ? "Remove from favorites":"Add to Favorites"}
+                                </Button>
+                            }
+                        </TabPanel>
+                        {/*FIXTURES*/}
                         <TabPanel value={currentPage}
                                   index="fixtures">
                             {

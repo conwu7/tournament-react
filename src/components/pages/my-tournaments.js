@@ -59,10 +59,14 @@ export default function MyTournaments (props) {
     const [recentTournaments, setRecent] = useState([]);
     const styles = useStyles();
     const [adminTournaments, setAdminTournaments] = useState([]);
+    const [favorites, setFavorites] = useState([]);
     useEffect(() => {
         if (!user) return
         fetchApi('tournament/myTournaments', 'get')
-            .then(result => setAdminTournaments(result))
+            .then(result => {
+                setAdminTournaments(result.admin || []);
+                setFavorites(result.favorites || []);
+            })
             .catch(e => console.log(e));
     }, [user]);
     // load recent list from local storage
@@ -103,6 +107,20 @@ export default function MyTournaments (props) {
                                     </Link>
                                 </Typography>
                             }
+                            {
+                                user && favorites.length === 0 && "--"
+                            }
+                            {
+                                user &&
+                                favorites.map(tournament => (
+                                    <TournamentItem key={tournament._id}
+                                                    name={tournament.name}
+                                                    isKnockout={tournament.isKnockout}
+                                                    createdBy={tournament.admin.username}
+                                                    tournamentId={tournament._id}
+                                    />
+                                ))
+                            }
                         </AccordionDetails>
                     </Accordion>
                     {/*RECENT*/}
@@ -117,7 +135,7 @@ export default function MyTournaments (props) {
                         <AccordionDetails className={styles.accDetails}>
                             {
                                 recentTournaments.length === 0 &&
-                                    <Typography>--</Typography>
+                                    "--"
                             }
                             {
                                 recentTournaments.map(tournament => (
