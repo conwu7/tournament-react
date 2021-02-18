@@ -22,6 +22,7 @@ const useResults = makeStyles((theme) => ({
         display: "flex",
         flexWrap: "wrap",
         justifyContent: "space-evenly",
+        alignItems: "center"
     },
     resultSet: {
         minWidth: "40%",
@@ -31,9 +32,17 @@ const useResults = makeStyles((theme) => ({
     resultBox: {
         display: "flex",
         minHeight: 45,
-        padding: 5,
+        padding: "10px 5px",
         justifyContent: "center",
         alignItems: "center"
+    },
+    tieBreaker: {
+        backgroundColor: "pink",
+    },
+    tieBreakerText: {
+        textAlign: "center",
+        fontWeight: "bold",
+        color: "purple"
     },
     goals: {
         display: "flex",
@@ -90,7 +99,7 @@ function handleInputResults (updateFunc) {
         const name = e.target.name;
         const value = e.target.value;
         e.target.style.backgroundColor = "white";
-        if (isNaN(parseInt(value)) || parseFloat(value) % 1 !== 0) {
+        if (value !== "" && (isNaN(parseInt(value)) || parseFloat(value) % 1 !== 0)) {
             e.target.style.backgroundColor = "#f4c7c7";
             return
         }
@@ -105,6 +114,14 @@ function getScoreString (score) {
 function addResult(goalsFor, goalsAgainst, results) {
     if (isNaN(goalsFor) || isNaN(goalsAgainst)) results.push(null);
     else results.push([goalsFor, goalsAgainst]);
+}
+function addTieBreaker(goalsFor, goalsAgainst, results) {
+    // don't do anything if tie breaker match isn't complete
+    if (isNaN(goalsFor) || isNaN(goalsAgainst)) return;
+    const homeResultArray = results[results.length -1];
+    if (homeResultArray) {
+        homeResultArray.push(goalsFor, goalsAgainst);
+    }
 }
 // only integers or Nan is passed as value to this function
 function isInvalidScore (inputName, value, opposingInputId) {
@@ -153,18 +170,23 @@ export function KnockoutTeamResults (props) {
             if (!useTwoLegs && i%2 === 1) return results.push(null);
             const homeFor = parseInt(updatedResults[`homeGoalsFor${i}`]);
             const homeAgainst = parseInt(updatedResults[`homeGoalsAgainst${i}`]);
+            const tieBreakerFor = parseInt(updatedResults[`tieBreakerGoalsFor${i}`]);
+            const tieBreakerAgainst = parseInt(updatedResults[`tieBreakerGoalsAgainst${i}`]);
             const neutralFor = parseInt(updatedResults[`neutralGoalsFor${i}`]);
             const neutralAgainst = parseInt(updatedResults[`neutralGoalsAgainst${i}`]);
             // halt if score is invalid
-            if (useTwoLegs) {
+            if (useTwoLegs && (!(isFinal && useOneFinal))) {
                 if (isInvalidScore(`homeGoalsFor${i}`, homeFor, `homeGoalsAgainst${i}`)) return
                 if (isInvalidScore(`homeGoalsAgainst${i}`, homeAgainst, `homeGoalsFor${i}`)) return
                 addResult(homeFor, homeAgainst, results);
             } else {
                 if (isInvalidScore(`neutralGoalsFor${i}`, neutralFor, `neutralGoalsAgainst${i}`)) return
                 if (isInvalidScore(`neutralGoalsAgainst${i}`, neutralAgainst, `neutralGoalsFor${i}`)) return
-              addResult(neutralFor, neutralAgainst, results);
+                addResult(neutralFor, neutralAgainst, results);
             }
+            if (isInvalidScore(`tieBreakerGoalsFor${i}`, tieBreakerFor, `tieBreakerGoalsAgainst${i}`)) return
+            if (isInvalidScore(`tieBreakerGoalsAgainst${i}`, tieBreakerAgainst, `tieBreakerGoalsFor${i}`)) return
+            addTieBreaker(tieBreakerFor, tieBreakerAgainst, results);
         }
         const values = {results};
         const url = `tournament/${tournamentId}/knockoutResults`;
@@ -215,6 +237,8 @@ export function KnockoutTeamResults (props) {
                     const homeAgainst = getScoreString(fixture.home.goalsAgainst);
                     const awayFor = getScoreString(fixture.away.goalsFor);
                     const awayAgainst = getScoreString(fixture.away.goalsAgainst);
+                    const tieBreakerFor = getScoreString(fixture.tieBreaker && fixture.tieBreaker.goalsFor);
+                    const tieBreakerAgainst = getScoreString(fixture.tieBreaker && fixture.tieBreaker.goalsAgainst);
                     return (
                         <Paper key={index} className={styles.resultSet}>
                         {/*home result*/}
@@ -242,6 +266,34 @@ export function KnockoutTeamResults (props) {
                                     />
                                 }
                             />
+                            {/*tiebreaker*/}
+                            {
+                                fixture.tieBreaker &&
+                                <Result
+                                    home={firstTeam}
+                                    away={secondTeam}
+                                    goalsFor={tieBreakerFor || "-"}
+                                    goalsAgainst={tieBreakerAgainst || "-"}
+                                    isUpdatingResults={isUpdatingResults}
+                                    isTieBreaker={true}
+                                    goalsForComp={
+                                        <ResultInput defaultValue={tieBreakerFor}
+                                                     name={`tieBreakerGoalsFor${index}`}
+                                                     onChange={handleResults}
+                                                     onMount={setInitialValues}
+                                                     disabled={!isCurrentRound}
+                                        />
+                                    }
+                                    goalsAgainstComp={
+                                        <ResultInput defaultValue={tieBreakerAgainst}
+                                                     name={`tieBreakerGoalsAgainst${index}`}
+                                                     onChange={handleResults}
+                                                     onMount={setInitialValues}
+                                                     disabled={!isCurrentRound}
+                                        />
+                                    }
+                                />
+                            }
                             {/*away result */}
                             <Result
                                 home={secondTeam}
@@ -278,6 +330,8 @@ export function KnockoutTeamResults (props) {
                     const {firstTeam, secondTeam, automaticWinner} = setTeamNames(fixture, teams);
                     const neutralFor = getScoreString(fixture.neutral.goalsFor);
                     const neutralAgainst = getScoreString(fixture.neutral.goalsAgainst);
+                    const tieBreakerFor = getScoreString(fixture.tieBreaker && fixture.tieBreaker.goalsFor);
+                    const tieBreakerAgainst = getScoreString(fixture.tieBreaker && fixture.tieBreaker.goalsAgainst);
                     return (
                         <Paper key={index} className={styles.resultSet}>
                             <Result
@@ -304,6 +358,34 @@ export function KnockoutTeamResults (props) {
                                     />
                                 }
                             />
+                            {/*tiebreaker*/}
+                            {
+                                fixture.tieBreaker &&
+                                <Result
+                                    home={firstTeam}
+                                    away={secondTeam}
+                                    goalsFor={tieBreakerFor || "-"}
+                                    goalsAgainst={tieBreakerAgainst || "-"}
+                                    isUpdatingResults={isUpdatingResults}
+                                    isTieBreaker={true}
+                                    goalsForComp={
+                                        <ResultInput defaultValue={tieBreakerFor}
+                                                     name={`tieBreakerGoalsFor${index}`}
+                                                     onChange={handleResults}
+                                                     onMount={setInitialValues}
+                                                     disabled={!isCurrentRound}
+                                        />
+                                    }
+                                    goalsAgainstComp={
+                                        <ResultInput defaultValue={tieBreakerAgainst}
+                                                     name={`tieBreakerGoalsAgainst${index}`}
+                                                     onChange={handleResults}
+                                                     onMount={setInitialValues}
+                                                     disabled={!isCurrentRound}
+                                        />
+                                    }
+                                />
+                            }
                         </Paper>
                     )
                 })
@@ -537,21 +619,28 @@ function ResultInput (props) {
 function Result (props) {
     const styles = useResults();
     const {home, away, goalsFor, goalsAgainst, homeAutoAdvance, awayAutoAdvance,
-            isUpdatingResults, goalsForComp, goalsAgainstComp} = props;
+            isUpdatingResults, goalsForComp, goalsAgainstComp, isTieBreaker} = props;
     return (
-        <Box className={styles.resultBox}>
-            <Typography className={`${styles.team} ${styles.homeTeam}`}>
-                {home}
-                {
-                    homeAutoAdvance &&
-                    <>
-                        <br />
-                        <span className={styles.advanced}>(auto adv)</span>
-                    </>
-                }
-            </Typography>
+        <>
             {
-                !isUpdatingResults &&
+                isTieBreaker &&
+                    <Box className={styles.tieBreaker}>
+                        <Typography className={styles.tieBreakerText}>TIE-BREAKER</Typography>
+                    </Box>
+            }
+            <Box className={`${styles.resultBox} ${isTieBreaker?styles.tieBreaker:""}`}>
+                <Typography className={`${styles.team} ${styles.homeTeam}`}>
+                    {home}
+                    {
+                        homeAutoAdvance &&
+                        <>
+                            <br />
+                            <span className={styles.advanced}>(auto adv)</span>
+                        </>
+                    }
+                </Typography>
+                {
+                    !isUpdatingResults &&
                     <>
                         <Typography className={styles.goals}>
                             {isNaN(parseInt(goalsFor)) ? "-" : goalsFor}
@@ -560,24 +649,26 @@ function Result (props) {
                             {isNaN(parseInt(goalsAgainst)) ? "-" : goalsAgainst}
                         </Typography>
                     </>
-            }
-            {
-                isUpdatingResults &&
+                }
+                {
+                    isUpdatingResults &&
                     <>
                         {goalsForComp}
                         {goalsAgainstComp}
                     </>
-            }
-            <Typography className={`${styles.team} ${styles.awayTeam}`}>
-                {away}
-                {
-                    awayAutoAdvance &&
-                    <>
-                        <br />
-                        <span className={styles.advanced}>(auto adv)</span>
-                    </>
                 }
-            </Typography>
-        </Box>
+                <Typography className={`${styles.team} ${styles.awayTeam}`}>
+                    {away}
+                    {
+                        awayAutoAdvance &&
+                        <>
+                            <br />
+                            <span className={styles.advanced}>(auto adv)</span>
+                        </>
+                    }
+                </Typography>
+            </Box>
+        </>
+
     )
 }

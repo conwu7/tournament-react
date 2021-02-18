@@ -28,13 +28,14 @@ const useStyles = makeStyles((theme) => ({
     },
     links: {
         fontWeight: 'bold',
-    },
-    menuItem: {
-        backgroundColor: "whitesmoke",
-        margin: 5
+        textAlign: "center"
     },
     menuIcon: {
         color: 'whitesmoke'
+    },
+    linkText: {
+        width: 70,
+        textAlign: "left"
     },
     loginText: {
         color: 'whitesmoke',
@@ -42,12 +43,16 @@ const useStyles = makeStyles((theme) => ({
     },
     logoutText: {
         color: "indianred",
-        backgroundColor: "whitesmoke",
-        margin: 5
     },
     navLinkText: {
-        color: "inherit",
+        display: "block",
+        margin: 10,
+        padding: "10px 25px",
+        fontSize: 18,
+        color: "darkslategray",
+        textAlign: "left",
         textDecoration: "none",
+        backgroundColor: "whitesmoke",
     }
 }));
 
@@ -84,18 +89,16 @@ export default function NavBar (props) {
                     onClose={handleClose}
                 >
                     <Link to="/" className={styles.navLinkText}>
-                        <MenuItem onClick={handleClose} className={styles.menuItem}>
-                            Home
-                        </MenuItem>
+                        <span className={styles.linkText}>Home</span>
                     </Link>
                     <Link to="/new" className={styles.navLinkText}>
-                        <MenuItem onClick={handleClose} className={styles.menuItem}>
-                            New Tournament
-                        </MenuItem>
+                        <span className={styles.linkText}>New</span>
                     </Link>
                     {
                         user &&
-                        <MenuItem onClick={handleLogout} className={styles.logoutText}>Logout</MenuItem>
+                        <Link onClick={handleLogout} to="#" className={styles.navLinkText}>
+                            <span className={`${styles.linkText} ${styles.logoutText}`}>Logout</span>
+                        </Link>
                     }
                 </Menu>
                 <Typography variant="h6" className={styles.title}>

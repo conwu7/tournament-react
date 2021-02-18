@@ -17,7 +17,6 @@ import {KnockoutFixtures, LeagueFixtures} from "../fixtures";
 import LeagueTable from "../league-table";
 import Admin from "../admin";
 import TabPanel from "../tab-panel";
-import {useLogger} from "@material-ui/data-grid";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -56,6 +55,10 @@ const useStyles = makeStyles((theme) => ({
     noFixtures: {
         padding: 20,
         textAlign: "center"
+    },
+    favoriteText: {
+        margin: "20px auto",
+        width: "fit-content"
     }
 }));
 
@@ -264,9 +267,9 @@ export default function Tournament (props) {
                         <TabPanel value={currentPage} index="favorites">
                             {
                                 !user &&
-                                <Typography>
+                                <Typography className={styles.favoriteText}>
                                     <Link to="/login">
-                                        Sign in to view your favorites
+                                        Sign in to add to your favorites
                                     </Link>
                                 </Typography>
                             }
