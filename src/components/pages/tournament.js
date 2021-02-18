@@ -253,6 +253,7 @@ export default function Tournament (props) {
                             >
                                 <Admin tournament={tournament}
                                        tournamentId={tournamentId}
+                                       fixtures={fixturesDocument}
                                 />
                             </TabPanel>
                         }
@@ -298,6 +299,7 @@ export default function Tournament (props) {
                                     teams={teams}
                                     fixtures={fixturesDocument.leagueFixtures}
                                     useTwoLegs={tournament.useTwoLegs}
+                                    tournamentId={tournamentId}
                                 />
                             }
                             {

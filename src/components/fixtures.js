@@ -20,6 +20,7 @@ const useStyles = makeStyles((theme) => ({
         display: "flex",
         flexDirection: "row",
         justifyContent: "center",
+        marginTop: 10
     }
 }));
 
@@ -32,10 +33,10 @@ const roundLabels = {
 }
 
 export function KnockoutFixtures (props) {
-    const {teams, fixtures, useTwoLegs} = props;
+    const {teams, fixtures, useTwoLegs, isUpdatingResults, tournamentId} = props;
     const {startingRound, currentRound} = fixtures;
     const styles = useStyles();
-    const [value, setValue] = useState(0);
+    const [value, setValue] = useState(currentRound);
     const [availableRounds, setAvailableRounds] = useState([]);
 
     useEffect(() => {
@@ -68,10 +69,11 @@ export function KnockoutFixtures (props) {
                     aria-label="scrollable auto tabs example"
                 >
                     {
-                        availableRounds.map((team, index) => (
+                        availableRounds.map((round, index) => (
                             <Tab
                                 key={index}
-                                label={roundLabels[team]}
+                                value={round}
+                                label={roundLabels[round]}
                                 />
                         ))
                     }
@@ -80,14 +82,17 @@ export function KnockoutFixtures (props) {
             <Box className={styles.tabPanelContainer}>
                 {
                     availableRounds.map((round, index) => (
-                        <TabPanel index={index}
+                        <TabPanel index={round}
                                   value={value}
-                                  key={index}
+                                  key={round}
                         >
                             <KnockoutTeamResults
                                 roundFixtures={fixtures[round]}
                                 teams={teams}
                                 useTwoLegs={useTwoLegs}
+                                tournamentId={tournamentId}
+                                isCurrentRound={value === fixtures.currentRound}
+                                isUpdatingResults={isUpdatingResults}
                             />
                         </TabPanel>
                     ))
@@ -98,10 +103,9 @@ export function KnockoutFixtures (props) {
 }
 
 export function LeagueFixtures (props) {
-    const {teams, fixtures, useTwoLegs} = props;
+    const {teams, fixtures, useTwoLegs, isUpdatingResults, tournamentId} = props;
     const styles = useStyles();
     const [value, setValue] = useState(0);
-
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -140,6 +144,9 @@ export function LeagueFixtures (props) {
                                 teams={teams}
                                 useTwoLegs={useTwoLegs}
                                 teamName={team.teamName}
+                                teamIndex={index}
+                                tournamentId={tournamentId}
+                                isUpdatingResults={isUpdatingResults}
                             />
                         </TabPanel>
                     ))

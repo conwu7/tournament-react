@@ -7,6 +7,7 @@ import {makeStyles} from "@material-ui/core/styles";
 import {TournamentForm} from "./pages/create-new";
 import AdminActions from "./admin-dir/admin-actions";
 import UpdateTeams from "./admin-dir/update-teams";
+import UpdateResults from "./admin-dir/update-results";
 import TabPanel from "./tab-panel";
 
 const useStyles = makeStyles((theme) => ({
@@ -25,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Admin (props) {
-    const {tournament, tournamentId} = props;
+    const {tournament, tournamentId, fixtures} = props;
     const styles = useStyles();
     const [value, setValue] = useState("actions");
 
@@ -79,7 +80,10 @@ export default function Admin (props) {
             <TabPanel value={value}
                       index="fixtures"
             >
-                Fixtures
+                <UpdateResults fixtures={fixtures}
+                               tournament={tournament}
+                               tournamentId={tournamentId}
+                />
             </TabPanel>
         </Paper>
     );
