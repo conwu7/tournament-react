@@ -12,7 +12,7 @@ const useStyles = makeStyles(() => ({
 export default function UpdateResults (props) {
     const {tournament, fixtures} = props;
     const {leagueFixtures} = fixtures;
-    const {useTwoLegs, teams, _id: tournamentId} = tournament;
+    const {useTwoLegs, useOneFinal, teams, _id: tournamentId} = tournament;
     const styles = useStyles();
     if (!tournament.hasLeagueFixturesGenerated && !tournament.currentRound) return (
         <Paper className={styles.noFixtures}>
@@ -35,6 +35,7 @@ export default function UpdateResults (props) {
                 <KnockoutFixtures fixtures={fixtures}
                                   teams={teams}
                                   useTwoLegs={useTwoLegs}
+                                  useOneFinal={useOneFinal}
                                   isUpdatingResults={true}
                                   tournamentId={tournamentId}
                 />

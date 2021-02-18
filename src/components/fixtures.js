@@ -33,7 +33,7 @@ const roundLabels = {
 }
 
 export function KnockoutFixtures (props) {
-    const {teams, fixtures, useTwoLegs, isUpdatingResults, tournamentId} = props;
+    const {teams, fixtures, useTwoLegs, useOneFinal, isUpdatingResults, tournamentId} = props;
     const {startingRound, currentRound} = fixtures;
     const styles = useStyles();
     const [value, setValue] = useState(currentRound);
@@ -90,8 +90,10 @@ export function KnockoutFixtures (props) {
                                 roundFixtures={fixtures[round]}
                                 teams={teams}
                                 useTwoLegs={useTwoLegs}
+                                useOneFinal={useOneFinal}
                                 tournamentId={tournamentId}
                                 isCurrentRound={value === fixtures.currentRound}
+                                isFinal={value === "roundOf2"}
                                 isUpdatingResults={isUpdatingResults}
                             />
                         </TabPanel>

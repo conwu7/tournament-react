@@ -17,6 +17,7 @@ import {KnockoutFixtures, LeagueFixtures} from "../fixtures";
 import LeagueTable from "../league-table";
 import Admin from "../admin";
 import TabPanel from "../tab-panel";
+import {useLogger} from "@material-ui/data-grid";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -129,7 +130,6 @@ export default function Tournament (props) {
     }
     // add to recent list using local storage
     useEffect(() => {
-
         if (tournament && !tournament.notSet && !tournament.notFound) {
             const tournamentObj = {
                 name: tournament.name,
@@ -140,10 +140,10 @@ export default function Tournament (props) {
             let recentTournaments = localStorage.getItem('recentTournaments');
             if (recentTournaments) recentTournaments = JSON.parse(recentTournaments);
             else recentTournaments = [];
-            const isAlreadyInRecent = recentTournaments.some(item => {
-                return item.tournamentId === tournament._id;
-            })
-            if (isAlreadyInRecent) return
+            // remove current tournament from list if present - add to top as most recent
+            recentTournaments = recentTournaments.filter(item => {
+                return (item.tournamentId !== tournament._id)
+            });
             if (recentTournaments.length > 4) recentTournaments.pop();
             recentTournaments.unshift(tournamentObj);
             localStorage.setItem('recentTournaments', JSON.stringify(recentTournaments));
@@ -308,6 +308,7 @@ export default function Tournament (props) {
                                     teams={teams}
                                     fixtures={fixturesDocument}
                                     useTwoLegs={tournament.useTwoLegs}
+                                    useOneFinal={tournament.useOneFinal}
                                 />
                             }
                         </TabPanel>

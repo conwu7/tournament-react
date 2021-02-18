@@ -90,6 +90,10 @@ function handleInputResults (updateFunc) {
         const name = e.target.name;
         const value = e.target.value;
         e.target.style.backgroundColor = "white";
+        if (isNaN(parseInt(value)) || parseFloat(value) % 1 !== 0) {
+            e.target.style.backgroundColor = "#f4c7c7";
+            return
+        }
         updateFunc(prevState => ({...prevState, [name]: value}));
     }
 }
@@ -102,14 +106,15 @@ function addResult(goalsFor, goalsAgainst, results) {
     if (isNaN(goalsFor) || isNaN(goalsAgainst)) results.push(null);
     else results.push([goalsFor, goalsAgainst]);
 }
+// only integers or Nan is passed as value to this function
 function isInvalidScore (inputName, value, opposingInputId) {
     if (value < 0) {
         document.getElementById(inputName).style.backgroundColor = "#f4c7c7";
         return true
     }
     const opposingInput = document.getElementById(opposingInputId);
-    const opposingInputHasValue = !!opposingInput.value;
-    if (!isNaN(value) && !opposingInputHasValue) {
+    // for same team matches. value should not be a number anyways - input will be null
+    if (!isNaN(value) && !opposingInput.value) {
         opposingInput.style.backgroundColor = "#f4c7c7";
         return true
     }
@@ -118,7 +123,8 @@ function isInvalidScore (inputName, value, opposingInputId) {
 }
 
 export function KnockoutTeamResults (props) {
-    const {roundFixtures, teams, useTwoLegs, tournamentId, isUpdatingResults, isCurrentRound} = props;
+    const {roundFixtures, teams, useTwoLegs, tournamentId, isUpdatingResults,
+            isCurrentRound, isFinal, useOneFinal} = props;
     const [loading, setLoading] = useState(false);
     const styles = useResults();
     const setTeamNames = (fixture, teams) => {
@@ -201,7 +207,7 @@ export function KnockoutTeamResults (props) {
                 </>
             }
             {
-                useTwoLegs &&
+                useTwoLegs && (!(isFinal && useOneFinal)) &&
                 roundFixtures.map((fixture, index) => {
                     if (index % 2 === 1) return null
                     const {firstTeam, secondTeam, automaticWinner} = setTeamNames(fixture, teams);
@@ -266,7 +272,7 @@ export function KnockoutTeamResults (props) {
                 })
             }
             {
-                !useTwoLegs &&
+                (!useTwoLegs || (isFinal && useOneFinal)) &&
                 roundFixtures.map((fixture, index) => {
                     if (index % 2 === 1) return null
                     const {firstTeam, secondTeam, automaticWinner} = setTeamNames(fixture, teams);
@@ -344,15 +350,15 @@ export function LeagueTeamResults (props) {
             const neutralAgainst = parseInt(updatedResults[`neutralGoalsAgainst${i}`]);
             // halt if score is invalid
             if (useTwoLegs) {
-                if (isInvalidScore(`homeGoalsFor${i}`, homeFor)) return
-                if (isInvalidScore(`homeGoalsAgainst${i}`, homeAgainst)) return
-                if (isInvalidScore(`awayGoalsFor${i}`, awayFor)) return
-                if (isInvalidScore(`awayGoalsAgainst${i}`, awayAgainst)) return
+                if (isInvalidScore(`homeGoalsFor${i}`, homeFor, `homeGoalsAgainst${i}`)) return
+                if (isInvalidScore(`homeGoalsAgainst${i}`, homeAgainst, `homeGoalsFor${i}`)) return
+                if (isInvalidScore(`awayGoalsFor${i}`, awayFor, `awayGoalsAgainst${i}`)) return
+                if (isInvalidScore(`awayGoalsAgainst${i}`, awayAgainst, `awayGoalsFor${i}`)) return
                 addResult(homeFor, homeAgainst, home);
                 addResult(awayFor, awayAgainst, away);
             } else {
-                if (isInvalidScore(`neutralGoalsFor${i}`, neutralFor)) return
-                if (isInvalidScore(`neutralGoalsAgainst${i}`, neutralAgainst)) return
+                if (isInvalidScore(`neutralGoalsFor${i}`, neutralFor, `neutralGoalsAgainst${i}`)) return
+                if (isInvalidScore(`neutralGoalsAgainst${i}`, neutralAgainst, `neutralGoalsFor${i}`)) return
                 addResult(neutralFor, neutralAgainst, neutral);
             }
         }
