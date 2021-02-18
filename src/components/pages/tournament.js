@@ -268,7 +268,7 @@ export default function Tournament (props) {
                             {
                                 !user &&
                                 <Typography className={styles.favoriteText}>
-                                    <Link to="/login">
+                                    <Link to={{pathname: "/login", state: {prevPage: window.location.href}}}>
                                         Sign in to add to your favorites
                                     </Link>
                                 </Typography>

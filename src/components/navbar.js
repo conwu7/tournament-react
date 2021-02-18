@@ -8,16 +8,16 @@ import MenuIcon from '@material-ui/icons/Menu';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import '../stylesheets/default-font.css';
-import {Link, NavLink} from 'react-router-dom';
+import {Link, NavLink, useLocation} from 'react-router-dom';
 import {fetchApi} from "../helpers/common";
 
 const useStyles = makeStyles((theme) => ({
     root: {
         flexGrow: 1,
     },
-    // appBar: {
-    //   backgroundColor: "darkslategray"
-    // },
+    appBar: {
+        flexDirection: "row-reverse"
+    },
     menuButton: {
         marginRight: theme.spacing(2),
     },
@@ -31,15 +31,19 @@ const useStyles = makeStyles((theme) => ({
         textAlign: "center"
     },
     menuIcon: {
-        color: 'whitesmoke'
+        color: 'whitesmoke',
+        fontSize: 30,
+        marginLeft: 50
     },
     linkText: {
         width: 70,
-        textAlign: "left"
+        textAlign: "left",
+        // fontSize: 22
     },
     loginText: {
         color: 'whitesmoke',
-        textDecoration: 'none'
+        textDecoration: 'none',
+        fontSize: 18
     },
     logoutText: {
         color: "indianred",
@@ -60,6 +64,13 @@ export default function NavBar (props) {
     const {user} = props;
     const styles = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
+    // const location = useLocation();
+    // const path = location.pathname.split('/');
+    // const page = path[1];
+    // const startingPage =
+    //     page === 'tournament' ? ''
+    //         : ['new', 'search', 'home'].includes(page) ? page
+    //         : 'home';
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -78,6 +89,22 @@ export default function NavBar (props) {
         <AppBar position="fixed"
                 className={styles.appBar}>
             <Toolbar>
+                {/*<Typography variant="h6" className={styles.title}>*/}
+                {/*    {startingPage && startingPage.toUpperCase()}*/}
+                {/*</Typography>*/}
+                {
+                    !user &&
+                        <>
+                            <Button color="inherit" className={styles.links}>
+                                <NavLink to={{pathname: "/login", state: {prevPage: window.location.href}}}
+                                         className={styles.loginText}>Login</NavLink>
+                            </Button>
+                            <Button color="inherit" className={styles.links}>
+                                <NavLink to={{pathname: "/signup", state: {prevPage: window.location.href}}}
+                                         className={styles.loginText}>Sign-up</NavLink>
+                            </Button>
+                        </>
+                }
                 <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
                     <MenuIcon className={styles.menuIcon} />
                 </Button>
@@ -104,20 +131,6 @@ export default function NavBar (props) {
                         </Link>
                     }
                 </Menu>
-                <Typography variant="h6" className={styles.title}>
-                    Home
-                </Typography>
-                {
-                    !user &&
-                        <>
-                            <Button color="inherit" className={styles.links}>
-                                <NavLink to="/login" className={styles.loginText}>Login</NavLink>
-                            </Button>
-                            <Button color="inherit" className={styles.links}>
-                                <NavLink to="/signup" className={styles.loginText}>Sign-up</NavLink>
-                            </Button>
-                        </>
-                }
             </Toolbar>
         </AppBar>
     )

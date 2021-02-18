@@ -11,7 +11,7 @@ import Container from '@material-ui/core/Container';
 import {useFormik} from "formik";
 import WaitForServer from "../loading";
 import {fetchApi} from "../../helpers/common";
-import {Link as RouterLink} from 'react-router-dom';
+import {Link as RouterLink, useLocation} from 'react-router-dom';
 import {LoginSchema} from "../../helpers/validation";
 
 export default function Login() {
@@ -57,6 +57,8 @@ export function FormBody (props) {
     const {showUsername, page, isCreating, apiUrl, validationSchema} = props;
     const [wait, setWaitForServer] = useState(false);
     const [serverError, setServerError] = useState("");
+    const location = useLocation();
+    const prevPage = location.state ? location.state.prevPage : "";
     const initialValues = {
         username: showUsername? '' : undefined,
         email: '',
@@ -71,7 +73,11 @@ export function FormBody (props) {
             setTimeout(async ()=>{
                 try {
                     await fetchApi( `users/${apiUrl}`, 'post', values);
-                    window.location.reload();
+                    if (prevPage) {
+                        window.location.href = prevPage
+                    } else {
+                        window.location.reload();
+                    }
                 } catch (err) {
                     setServerError(err);
                 } finally {
@@ -168,12 +174,12 @@ export function FormBody (props) {
                             {
                                 isCreating ?
                                     <Grid item>
-                                        <RouterLink to="login">
+                                        <RouterLink to={{pathname: "/login", state: {prevPage: window.location.href}}}>
                                             Already have an account? Log in
                                         </RouterLink>
                                     </Grid> :
                                     <Grid item>
-                                        <RouterLink to="/signup">
+                                        <RouterLink to={{pathname: "/signup", state: {prevPage: window.location.href}}}>
                                             Don't have an account? Sign Up
                                         </RouterLink>
                                     </Grid>

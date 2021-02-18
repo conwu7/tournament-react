@@ -143,7 +143,7 @@ export function TournamentForm (props) {
                        style={{padding: "30px"}}
             >
                 <Typography>
-                    <Link to="/login">
+                    <Link to={{pathname: "/login", state: {prevPage: window.location.href}}}>
                         Log in to create tournaments.
                     </Link>
                 </Typography>

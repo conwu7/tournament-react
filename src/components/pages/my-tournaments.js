@@ -103,7 +103,7 @@ export default function MyTournaments (props) {
                             {
                                 !user &&
                                 <Typography className={styles.signedOutMessage}>
-                                    <Link to="/login">
+                                    <Link to={{pathname: "/login", state: {prevPage: window.location.href}}}>
                                         Sign in to view your favorites
                                     </Link>
                                 </Typography>
@@ -163,7 +163,7 @@ export default function MyTournaments (props) {
                             {
                                 !user &&
                                 <Typography className={styles.signedOutMessage}>
-                                    <Link to="/login">
+                                    <Link to={{pathname: "/login", state: {prevPage: window.location.href}}}>
                                         Sign in to view tournaments you manage
                                     </Link>
                                 </Typography>
@@ -202,6 +202,9 @@ const useTournamentStyles = makeStyles((theme) => ({
     },
     linkButton: {
         textAlign: "left",
+        textDecoration: "none",
+        padding: 10,
+        borderRadius: 5,
         backgroundColor: "#f3edf9",
         '&:hover': {
             backgroundColor: "#f3edf9",
@@ -227,22 +230,17 @@ const useTournamentStyles = makeStyles((theme) => ({
 export function TournamentItem (props) {
     const {name, createdBy, isKnockout, tournamentId} = props;
     const styles = useTournamentStyles();
-    const history = useHistory();
-    const navigateToTournament = () => {
-        history.push(`/tournament/${tournamentId}`);
-    }
-
     return (
         <Box className={`${styles.tournamentBox}`}
              size="large"
         >
-            <Button
+            <Link
+                to={`/tournament/${tournamentId}`}
                 className={styles.linkButton}
                 variant="contained"
-                onClick={navigateToTournament}
             >
                 <Typography className={styles.name}>{name}</Typography>
-            </Button>
+            </Link>
             <Typography
                 paragraph={true}
                 className={styles.tournamentInfo}
