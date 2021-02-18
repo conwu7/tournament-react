@@ -38,7 +38,8 @@ const useStyles = makeStyles((theme) => ({
         color: 'cadetblue'
     },
     accDetails: {
-        flexWrap: "wrap"
+        flexWrap: "wrap",
+        justifyContent: "space-evenly"
     },
     addButton: {
         display: "flex",
@@ -195,6 +196,9 @@ const useTournamentStyles = makeStyles((theme) => ({
         padding: 5,
         margin: 5,
         borderRadius: 5,
+        width: "48%",
+        minWidth: 270,
+        maxWidth: "100%"
     },
     linkButton: {
         textAlign: "left",
@@ -202,18 +206,21 @@ const useTournamentStyles = makeStyles((theme) => ({
         '&:hover': {
             backgroundColor: "#f3edf9",
         }
-
     },
     name: {
         paddingTop: 5,
         paddingBottom: 5,
         fontWeight: theme.typography.fontWeightBold,
+        width: "100%",
+        textAlign: "left"
     },
-    createdBy: {
+    tournamentInfo: {
         padding: 5,
         paddingLeft: 10,
         textAlign: "left",
-        fontStyle: "italic"
+        fontStyle: "italic",
+        color: "darkslategray",
+        backgroundColor: "whitesmoke"
     }
 }));
 
@@ -238,7 +245,7 @@ export function TournamentItem (props) {
             </Button>
             <Typography
                 paragraph={true}
-                className={styles.createdBy}
+                className={styles.tournamentInfo}
             >
                 Type: {isKnockout? "Knockout" : "League"}
                 <br />

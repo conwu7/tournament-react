@@ -18,6 +18,7 @@ import WaitForServer from "./components/loading";
 import MyTournaments from "./components/pages/my-tournaments";
 import Tournament from "./components/pages/tournament";
 import CreateNew from "./components/pages/create-new";
+import Search from "./components/pages/search";
 
 function App() {
     const [user, setUser] = useState('');
@@ -60,7 +61,7 @@ function App() {
                               <Login />
                           </Route>
                           <Route path="/search">
-
+                                <Search />
                           </Route>
                           <Route path="/new">
                               <CreateNew user={user} />

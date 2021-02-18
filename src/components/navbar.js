@@ -88,10 +88,13 @@ export default function NavBar (props) {
                     open={Boolean(anchorEl)}
                     onClose={handleClose}
                 >
-                    <Link to="/" className={styles.navLinkText}>
+                    <Link to="/" onClick={handleClose} className={styles.navLinkText}>
                         <span className={styles.linkText}>Home</span>
                     </Link>
-                    <Link to="/new" className={styles.navLinkText}>
+                    <Link to="/search" onClick={handleClose} className={styles.navLinkText}>
+                        <span className={styles.linkText}>Search</span>
+                    </Link>
+                    <Link to="/new" onClick={handleClose} className={styles.navLinkText}>
                         <span className={styles.linkText}>New</span>
                     </Link>
                     {

@@ -27,6 +27,6 @@ export const LoginSchema = Yup.object().shape({
 
 export const SearchSchema = Yup.object().shape({
     searchString: Yup.string()
-        .min(4, 'Search with at least 4 characters')
+        .min(2, 'Search with at least 2 characters')
         .required('Required')
 });
