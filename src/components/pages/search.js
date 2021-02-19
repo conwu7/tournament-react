@@ -105,7 +105,7 @@ export default function Search () {
                 <Avatar className={styles.avatar}>
                     <SearchOutlinedIcon/>
                 </Avatar>
-                <AppBar position="static" color="default" className={styles.appBarContainer}>
+                <AppBar position="sticky" color="default" className={styles.appBarContainer}>
                     <Tabs
                         value={value}
                         onChange={handleChange}

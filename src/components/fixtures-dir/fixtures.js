@@ -66,13 +66,14 @@ const useResults = makeStyles((theme) => ({
         fontWeight: "bold",
         fontSize: 15,
         wordBreak: "break-word",
+        textAlign: "center"
     },
     homeTeam: {
-        textAlign: "right",
+        // textAlign: "right",
         paddingRight: 10
     },
     awayTeam: {
-        textAlign: "left",
+        // textAlign: "left",
         paddingLeft: 10
     },
     advanced: {
