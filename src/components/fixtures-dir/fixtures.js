@@ -9,6 +9,8 @@ import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import {basicFetch} from "../../helpers/common";
 import WaitForServer from "../loading";
+import SportsSoccerOutlinedIcon from "@material-ui/icons/SportsSoccerOutlined";
+import Avatar from "@material-ui/core/Avatar";
 
 const useResults = makeStyles((theme) => ({
     root: {
@@ -32,7 +34,7 @@ const useResults = makeStyles((theme) => ({
     resultBox: {
         display: "flex",
         minHeight: 45,
-        padding: "10px 5px",
+        padding: "10px 0",
         justifyContent: "center",
         alignItems: "center"
     },
@@ -58,9 +60,12 @@ const useResults = makeStyles((theme) => ({
         fontFamily: "'Rubik Mono One', sans-serif !important"
     },
     team: {
-        width: 100,
+        width: 95,
+        minWidth: 95,
         alignSelf: "center",
-        fontWeight: "bold"
+        fontWeight: "bold",
+        fontSize: 15,
+        wordBreak: "break-word",
     },
     homeTeam: {
         textAlign: "right",
@@ -92,6 +97,15 @@ const useResults = makeStyles((theme) => ({
     },
     closed: {
         fontWeight: "bold"
+    },
+    teamBadge: {
+        width: 25,
+        height: 25,
+        margin: "0 5px",
+        '& svg, & path': {
+            width: 20,
+            height: 20
+        }
     }
 }));
 function handleInputResults (updateFunc) {
@@ -145,18 +159,22 @@ export function KnockoutTeamResults (props) {
     const [loading, setLoading] = useState(false);
     const styles = useResults();
     const setTeamNames = (fixture, teams) => {
-        let firstTeam, secondTeam, automaticWinner;
+        let firstTeam, secondTeam, automaticWinner, firstTeamLogo, secondTeamLogo;
         if (fixture.isEmpty) {
             firstTeam = secondTeam = "(empty)";
         } else if (roundFixtures[fixture.opponentIndex].isEmpty) {
             firstTeam = teams[fixture.teamIndex].teamName;
+            firstTeamLogo = teams[fixture.teamIndex].teamLogo;
             secondTeam = "(empty)";
             automaticWinner = true;
         } else {
             firstTeam = teams[fixture.teamIndex].teamName;
+            firstTeamLogo = teams[fixture.teamIndex].teamLogo;
             secondTeam = teams[roundFixtures[fixture.opponentIndex].teamIndex].teamName;
+            secondTeamLogo = teams[roundFixtures[fixture.opponentIndex].teamIndex].teamLogo;
+
         }
-        return {firstTeam, secondTeam, automaticWinner};
+        return {firstTeam, secondTeam, automaticWinner, firstTeamLogo, secondTeamLogo};
     }
     const [updatedResults, setUpdatedResults] = useState({});
     const handleResults = handleInputResults(setUpdatedResults);
@@ -232,7 +250,9 @@ export function KnockoutTeamResults (props) {
                 useTwoLegs && (!(isFinal && useOneFinal)) &&
                 roundFixtures.map((fixture, index) => {
                     if (index % 2 === 1) return null
-                    const {firstTeam, secondTeam, automaticWinner} = setTeamNames(fixture, teams);
+                    const {
+                        firstTeam, firstTeamLogo, secondTeam, secondTeamLogo, automaticWinner
+                    } = setTeamNames(fixture, teams);
                     const homeFor = getScoreString(fixture.home.goalsFor);
                     const homeAgainst = getScoreString(fixture.home.goalsAgainst);
                     const awayFor = getScoreString(fixture.away.goalsFor);
@@ -244,7 +264,9 @@ export function KnockoutTeamResults (props) {
                         {/*home result*/}
                             <Result
                                 home={firstTeam}
+                                homeLogo={firstTeamLogo}
                                 away={secondTeam}
+                                awayLogo={secondTeamLogo}
                                 homeAutoAdvance={automaticWinner}
                                 goalsFor={homeFor || "-"}
                                 goalsAgainst={homeAgainst || "-"}
@@ -271,7 +293,9 @@ export function KnockoutTeamResults (props) {
                                 fixture.tieBreaker &&
                                 <Result
                                     home={firstTeam}
+                                    homeLogo={firstTeamLogo}
                                     away={secondTeam}
+                                    awayLogo={secondTeamLogo}
                                     goalsFor={tieBreakerFor || "-"}
                                     goalsAgainst={tieBreakerAgainst || "-"}
                                     isUpdatingResults={isUpdatingResults}
@@ -298,6 +322,8 @@ export function KnockoutTeamResults (props) {
                             <Result
                                 home={secondTeam}
                                 away={firstTeam}
+                                homeLogo={secondTeamLogo}
+                                awayLogo={firstTeamLogo}
                                 awayAutoAdvance={automaticWinner}
                                 goalsFor={awayAgainst || "-"}
                                 goalsAgainst={awayFor || "-"}
@@ -327,7 +353,9 @@ export function KnockoutTeamResults (props) {
                 (!useTwoLegs || (isFinal && useOneFinal)) &&
                 roundFixtures.map((fixture, index) => {
                     if (index % 2 === 1) return null
-                    const {firstTeam, secondTeam, automaticWinner} = setTeamNames(fixture, teams);
+                    const {
+                        firstTeam, firstTeamLogo, secondTeam, secondTeamLogo, automaticWinner
+                    } = setTeamNames(fixture, teams);
                     const neutralFor = getScoreString(fixture.neutral.goalsFor);
                     const neutralAgainst = getScoreString(fixture.neutral.goalsAgainst);
                     const tieBreakerFor = getScoreString(fixture.tieBreaker && fixture.tieBreaker.goalsFor);
@@ -336,7 +364,9 @@ export function KnockoutTeamResults (props) {
                         <Paper key={index} className={styles.resultSet}>
                             <Result
                                 home={firstTeam}
+                                homeLogo={firstTeamLogo}
                                 away={secondTeam}
+                                awayLogo={secondTeamLogo}
                                 homeAutoAdvance={automaticWinner}
                                 goalsFor={neutralFor || "-"}
                                 goalsAgainst={neutralAgainst || "-"}
@@ -363,7 +393,9 @@ export function KnockoutTeamResults (props) {
                                 fixture.tieBreaker &&
                                 <Result
                                     home={firstTeam}
+                                    homeLogo={firstTeamLogo}
                                     away={secondTeam}
+                                    awayLogo={secondTeamLogo}
                                     goalsFor={tieBreakerFor || "-"}
                                     goalsAgainst={tieBreakerAgainst || "-"}
                                     isUpdatingResults={isUpdatingResults}
@@ -408,7 +440,7 @@ export function KnockoutTeamResults (props) {
 }
 
 export function LeagueTeamResults (props) {
-    const {teamFixtures, teamName, teamIndex, teams, useTwoLegs,
+    const {teamFixtures, teamName, teamLogo, teamIndex, teams, useTwoLegs,
             tournamentId ,isUpdatingResults} = props;
     const [loading, setLoading] = useState(false);
     const styles = useResults();
@@ -487,7 +519,9 @@ export function LeagueTeamResults (props) {
                             {/*home result*/}
                             <Result
                                 home={teamName}
+                                homeLogo={teamLogo}
                                 away={teams[index].teamName}
+                                awayLogo={teams[index].teamLogo}
                                 goalsFor={homeGoalsFor}
                                 goalsAgainst={homeGoalsAgainst}
                                 handleResults={handleResults}
@@ -512,7 +546,9 @@ export function LeagueTeamResults (props) {
                             {/*teams and scores are reversed on away*/}
                             <Result
                                 home={teams[index].teamName}
+                                homeLogo={teams[index].teamLogo}
                                 away={teamName}
+                                awayLogo={teamLogo}
                                 goalsFor={awayGoalsAgainst}
                                 goalsAgainst={awayGoalsFor}
                                 handleResults={handleResults}
@@ -548,7 +584,9 @@ export function LeagueTeamResults (props) {
                             {/*neutral result*/}
                             <Result
                                 home={teamName}
+                                homeLogo={teamLogo}
                                 away={teams[index].teamName}
+                                awayLogo={teams[index].teamLogo}
                                 goalsFor={neutralGoalsFor}
                                 goalsAgainst={neutralGoalsAgainst}
                                 handleResults={handleResults}
@@ -619,7 +657,8 @@ function ResultInput (props) {
 function Result (props) {
     const styles = useResults();
     const {home, away, goalsFor, goalsAgainst, homeAutoAdvance, awayAutoAdvance,
-            isUpdatingResults, goalsForComp, goalsAgainstComp, isTieBreaker} = props;
+            isUpdatingResults, goalsForComp, goalsAgainstComp, isTieBreaker,
+                homeLogo, awayLogo} = props;
     return (
         <>
             {
@@ -629,6 +668,16 @@ function Result (props) {
                     </Box>
             }
             <Box className={`${styles.resultBox} ${isTieBreaker?styles.tieBreaker:""}`}>
+                {
+                    !isUpdatingResults &&
+                    <Avatar alt="Team badge"
+                            src={homeLogo}
+                            className={styles.teamBadge}
+                    >
+                        {!homeLogo && <SportsSoccerOutlinedIcon />}
+                    </Avatar>
+                }
+
                 <Typography className={`${styles.team} ${styles.homeTeam}`}>
                     {home}
                     {
@@ -667,6 +716,15 @@ function Result (props) {
                         </>
                     }
                 </Typography>
+                {
+                    !isUpdatingResults &&
+                    <Avatar alt="Team badge"
+                            src={awayLogo}
+                            className={styles.teamBadge}
+                    >
+                        {!awayLogo && <SportsSoccerOutlinedIcon />}
+                    </Avatar>
+                }
             </Box>
         </>
 

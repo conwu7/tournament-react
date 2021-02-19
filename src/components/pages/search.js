@@ -6,22 +6,17 @@ import Container from "@material-ui/core/Container";
 import WaitForServer from "../loading";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Avatar from "@material-ui/core/Avatar";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import SearchOutlinedIcon from '@material-ui/icons/SearchOutlined';
 import Typography from "@material-ui/core/Typography";
-import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import {SearchSchema} from "../../helpers/validation";
 import {TournamentItem} from "./my-tournaments";
-import Box from "@material-ui/core/Box";
 import Paper from "@material-ui/core/Paper";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import AppBar from "@material-ui/core/AppBar";
 import TabPanel from "../tab-panel";
-import AdminActions from "../admin-dir/admin-actions";
-import {TournamentForm} from "./create-new";
 
 const useStyles = makeStyles((theme) => ({
     paper: {

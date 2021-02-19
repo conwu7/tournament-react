@@ -146,6 +146,7 @@ export function LeagueFixtures (props) {
                                 teams={teams}
                                 useTwoLegs={useTwoLegs}
                                 teamName={team.teamName}
+                                teamLogo={team.teamLogo}
                                 teamIndex={index}
                                 tournamentId={tournamentId}
                                 isUpdatingResults={isUpdatingResults}

@@ -12,11 +12,13 @@ import Box from '@material-ui/core/Box';
 import Button from "@material-ui/core/Button";
 import {AppBar} from "@material-ui/core";
 import {Switch, Route, useHistory, useLocation, Link} from 'react-router-dom';
+import SportsSoccerOutlinedIcon from '@material-ui/icons/SportsSoccerOutlined';
 
 import {KnockoutFixtures, LeagueFixtures} from "../fixtures";
 import LeagueTable from "../league-table";
 import Admin from "../admin";
 import TabPanel from "../tab-panel";
+import Avatar from "@material-ui/core/Avatar";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -334,6 +336,7 @@ const useTeamsStyle = makeStyles((theme) => ({
     },
     teamButton: {
         display: "flex",
+        boxSizing: "border-box",
         justifyContent: "space-between",
         textAlign: "left",
         backgroundColor: "#f5e1e1",
@@ -341,7 +344,7 @@ const useTeamsStyle = makeStyles((theme) => ({
             backgroundColor: "#f5e1e1",
         },
         width: 300,
-        margin: "auto"
+        margin: "0 auto"
         // alignSelf: "center"
     },
     teamIndex: {
@@ -350,17 +353,29 @@ const useTeamsStyle = makeStyles((theme) => ({
         fontFamily: "'Rubik Mono One', sans-serif !important"
     },
     name: {
-        paddingTop: 5,
-        paddingBottom: 5,
+        padding: 10,
+        margin: "0 5px",
+        flex: 1,
         fontWeight: theme.typography.fontWeightBold,
     },
     owner: {
-        margin: 0,
+        boxSizing: "border-box",
+        margin: "0 auto",
         padding: 5,
         paddingLeft: 10,
         textAlign: "left",
         fontStyle: "italic",
         width: 300,
+        backgroundColor: "whitesmoke"
+    },
+    teamBadge: {
+        width: 60,
+        height: 60,
+        margin: "0 5px",
+        '& svg, & path': {
+            width: 50,
+            height: 50
+        }
     }
 }));
 function Team (props) {
@@ -379,6 +394,12 @@ function Team (props) {
                 <Typography className={styles.name}>
                     {team.teamName || "( empty )"}
                 </Typography>
+                <Avatar alt="Team badge"
+                        src={team.teamLogo}
+                        className={styles.teamBadge}
+                >
+                    {!team.teamLogo && <SportsSoccerOutlinedIcon />}
+                </Avatar>
             </Button>
             <Typography
                 paragraph={true}

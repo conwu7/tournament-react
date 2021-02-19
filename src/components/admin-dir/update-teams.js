@@ -9,6 +9,10 @@ import Slider from "@material-ui/core/Slider";
 import Button from "@material-ui/core/Button";
 import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
+import {IconButton} from "@material-ui/core";
+import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
+import InputAdornment from '@material-ui/core/InputAdornment';
+import TeamSearch from "./team-search";
 
 const useUpdateStyles = makeStyles(() => ({
     container: {
@@ -18,7 +22,9 @@ const useUpdateStyles = makeStyles(() => ({
     teamSetContainer: {
         padding: 10,
         margin: 10,
-        backgroundColor: 'floralwhite'
+        backgroundColor: 'floralwhite',
+        width: "45%",
+        minWidth: 300
     },
     root: {
         width: 250,
@@ -47,6 +53,12 @@ const useUpdateStyles = makeStyles(() => ({
         display: "flex",
         flexWrap: "wrap",
         justifyContent: "center"
+    },
+    teamNameForm: {
+        width: "100%",
+        margin: 0,
+        padding: 0,
+        border: "none"
     }
 }));
 
@@ -61,11 +73,12 @@ export default function UpdateTeams (props) {
     let defaultValues = {}
     tournament.teams.forEach((team, index) => {
         defaultValues[`teamName${index}`] = team.teamName;
+        defaultValues[`teamLogo${index}`] = team.teamLogo;
         defaultValues[`playerName${index}`] = team.playerName;
     });
     const [values, setValues] = useState(defaultValues);
 
-    const handleNames = (e) => {
+    const handleValueChange = (e) => {
         const name = e.target.name;
         const value = e.target.value;
         setValues(prevState => ({...prevState, [name]: value}));
@@ -93,13 +106,15 @@ export default function UpdateTeams (props) {
     const handleSubmit = (e) => {
         e.preventDefault();
         let teamNames = [];
+        let teamLogos = [];
         let playerNames = [];
         for (let i=0; i<numberOfTeams; i++) {
             teamNames.push(values[`teamName${i}`]);
+            teamLogos.push(values[`teamLogo${i}`]);
             playerNames.push(values[`playerName${i}`]);
         }
-        const nameValues = {teamNames, playerNames};
-        basicFetch(`tournament/${tournamentId}/teams`, 'post', nameValues, setLoading, true, true);
+        const teamDetails = {teamNames, teamLogos, playerNames};
+        basicFetch(`tournament/${tournamentId}/teams`, 'post', teamDetails, setLoading, true, true);
     }
     const handleBlur = () => {
         if (numberOfTeams < 4) {
@@ -162,9 +177,7 @@ export default function UpdateTeams (props) {
                     </Typography>
                 }
             </Grid>
-            <form className={styles.nameFieldsContainer}
-                  onSubmit={handleSubmit}
-            >
+            <div className={styles.nameFieldsContainer}>
                 {
                     !!disableNumberChange &&
                     new Array(numberOfTeams).fill(null).map((team, index) => (
@@ -172,9 +185,10 @@ export default function UpdateTeams (props) {
                             key={index}
                             index={index}
                             values={values}
-                            onChange={handleNames}
+                            onChange={handleValueChange}
                             disabled={!disableNumberChange}
                             disableTeamNames={fixturesGenerated}
+                            useRealTeams={tournament.useRealTeams}
                         />
                     ))
                 }
@@ -191,7 +205,7 @@ export default function UpdateTeams (props) {
                         Save
                     </Button>
                 }
-            </form>
+            </div>
 
         </Grid>
     )
@@ -199,27 +213,82 @@ export default function UpdateTeams (props) {
 
 function TeamPlayerName (props) {
     const styles = useUpdateStyles();
-    const {index, disabled, disableTeamNames, values, onChange} = props;
+    const {index, disabled, disableTeamNames, values, onChange, useRealTeams} = props;
     const teamNameInput = `teamName${index}`;
+    const teamLogoInput = `teamLogo${index}`;
     const playerNameInput = `playerName${index}`;
+
+    const [isSearching, setSearching] = useState(false);
+
+    const handleOpenSearch = (e) => {
+        if (e) e.preventDefault();
+        if (!useRealTeams) return
+        setSearching(true);
+    }
+    const handleCloseSearch = () => {
+        setSearching(false);
+    }
+    const handleSelectedTeam = (inputName, logoInputName, teamName, teamLogo) => {
+        const teamNameEvent = {
+            target: {
+                name: inputName,
+                value: teamName
+            }
+        };
+        const teamLogoEvent = {
+            target: {
+                name: logoInputName,
+                value: teamLogo
+            }
+        }
+        onChange(teamNameEvent);
+        if (teamLogo) {
+            onChange(teamLogoEvent);
+        }
+    }
+
     return (
         <Paper className={styles.teamSetContainer}>
+            <TeamSearch useActivity={isSearching}
+                        handleClose={handleCloseSearch}
+                        inputName={teamNameInput}
+                        logoInputName={teamLogoInput}
+                        handleSelectedTeam={handleSelectedTeam}
+            />
             {index+1}
             <Grid container spacing={2} >
                 <Grid item xs={12} sm={6}>
-                    <TextField
-                        autoComplete="team name"
-                        name={teamNameInput}
-                        variant="outlined"
-                        required
-                        fullWidth
-                        id={teamNameInput}
-                        label="Team Name"
-                        inputProps={{className: styles.allInput}}
-                        disabled={disabled || disableTeamNames}
-                        value={values[teamNameInput] || ""}
-                        onChange={onChange}
-                    />
+                    <form onSubmit={handleOpenSearch}
+                          className={styles.teamNameForm}
+                    >
+                        <TextField
+                            autoComplete="team name"
+                            name={teamNameInput}
+                            variant="outlined"
+                            required
+                            fullWidth
+                            id={teamNameInput}
+                            label="Team Name"
+                            onSubmit={handleOpenSearch}
+                            inputProps={{
+                                className: styles.allInput,
+                            }}
+                            InputProps={{
+                                endAdornment: useRealTeams? (
+                                    <InputAdornment position="end">
+                                        <IconButton onClick={handleOpenSearch}
+                                                    disabled={disabled || disableTeamNames}
+                                        >
+                                            <SearchOutlinedIcon />
+                                        </IconButton>
+                                    </InputAdornment>
+                                ) : undefined
+                            }}
+                            disabled={disabled || disableTeamNames}
+                            value={values[teamNameInput] || ""}
+                            onChange={onChange}
+                        />
+                    </form>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField
