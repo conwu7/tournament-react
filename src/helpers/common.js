@@ -1,8 +1,11 @@
 export async function fetchApi (url, method, values) {
     return new Promise(async (resolve, reject) => {
         try {
+            const prod = "https://material-tournaments.herokuapp.com/";
+            const dev = "/api/";
+            const apiUrl = process.env.NODE_ENV === 'production' ? prod : dev;
             const response = await fetch(
-                `/api/${url}`,
+                `${apiUrl}${url}`,
                 {
                     method: method.toUpperCase(),
                     headers: {
