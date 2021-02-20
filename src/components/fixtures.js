@@ -81,7 +81,7 @@ export function KnockoutFixtures (props) {
             </AppBar>
             <Box className={styles.tabPanelContainer}>
                 {
-                    availableRounds.map((round, index) => (
+                    availableRounds.map(round => (
                         <TabPanel index={round}
                                   value={value}
                                   key={round}
