@@ -8,6 +8,7 @@ export async function fetchApi (url, method, values) {
                 `${apiUrl}${url}`,
                 {
                     method: method.toUpperCase(),
+                    credentials: 'include',
                     headers: {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
