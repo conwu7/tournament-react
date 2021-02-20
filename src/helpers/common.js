@@ -1,11 +1,11 @@
 export async function fetchApi (url, method, values) {
     return new Promise(async (resolve, reject) => {
         try {
-            const prod = "https://material-tournaments.herokuapp.com/api/";
+            // const prod = "https://material-tournaments.herokuapp.com/api/";
             const dev = "/api/";
-            const apiUrl = process.env.NODE_ENV === 'production' ? prod : dev;
+            // const apiUrl = process.env.NODE_ENV === 'production' ? prod : dev;
             const response = await fetch(
-                `${apiUrl}${url}`,
+                `${dev}${url}`,
                 {
                     method: method.toUpperCase(),
                     credentials: 'include',
