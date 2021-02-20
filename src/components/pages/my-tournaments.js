@@ -50,6 +50,9 @@ const useStyles = makeStyles((theme) => ({
             backgroundColor: "#c7ecd8",
         }
     },
+    emptyList: {
+        color: "lightgray"
+    }
 }));
 
 
@@ -107,7 +110,10 @@ export default function MyTournaments (props) {
                                 </Typography>
                             }
                             {
-                                user && favorites.length === 0 && "--"
+                                user && favorites.length === 0 &&
+                                    <Typography className={styles.emptyList}>
+                                        Empty
+                                    </Typography>
                             }
                             {
                                 user &&
@@ -134,7 +140,9 @@ export default function MyTournaments (props) {
                         <AccordionDetails className={styles.accDetails}>
                             {
                                 recentTournaments.length === 0 &&
-                                    "--"
+                                <Typography className={styles.emptyList}>
+                                    Empty
+                                </Typography>
                             }
                             {
                                 recentTournaments.map(tournament => (
@@ -164,6 +172,12 @@ export default function MyTournaments (props) {
                                     <Link to={{pathname: "/login", state: {prevPage: window.location.href}}}>
                                         Sign in to view tournaments you manage
                                     </Link>
+                                </Typography>
+                            }
+                            {
+                                user && adminTournaments.length === 0 &&
+                                <Typography className={styles.emptyList}>
+                                    Empty
                                 </Typography>
                             }
                             {
