@@ -207,7 +207,7 @@ export function KnockoutTeamResults (props) {
             if (isInvalidScore(`tieBreakerGoalsAgainst${i}`, tieBreakerAgainst, `tieBreakerGoalsFor${i}`)) return
             addTieBreaker(tieBreakerFor, tieBreakerAgainst, results);
         }
-        const values = {results};
+        const values = {results, previousResults: roundFixtures};
         const url = `tournament/${tournamentId}/knockoutResults`;
         basicFetch(url, 'put', values, setLoading, true, true);
     }
@@ -477,7 +477,7 @@ export function LeagueTeamResults (props) {
                 addResult(neutralFor, neutralAgainst, neutral);
             }
         }
-        const values = {teamIndex, home, away, neutral};
+        const values = {teamIndex, home, away, neutral, previousResults: teamFixtures};
         const url = `tournament/${tournamentId}/leagueResults`;
         basicFetch(url, 'put', values, setLoading, true, true);
     }
