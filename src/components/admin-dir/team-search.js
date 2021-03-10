@@ -88,7 +88,7 @@ export default function TeamSearch (props) {
         if (useActivity) {
             setLoading(true);
             const searchString = document.getElementById(inputName).value;
-            if (!searchString) return
+            if (!searchString) return setLoading(false);
             fetch(
                 `https://www.thesportsdb.com/api/v1/json/1/searchteams.php?t=${searchString}`,
             )
