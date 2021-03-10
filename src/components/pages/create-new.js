@@ -70,6 +70,10 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '1.2em',
         margin: "auto",
         textAlign: "center"
+    },
+    optionInfo: {
+        fontStyle: "italic",
+        fontSize: "0.9em"
     }
 }));
 
@@ -243,7 +247,7 @@ export function TournamentForm (props) {
                                        onChange={handleRadioChange('useOneFinal')}
                                        label={"Use One Leg Final"}
                                        moreInfoComponent={<Typography className={styles.moreInfo}>
-                                           Only enabled if type is Knockout and "Use Two Legs" is selected
+                                           <span className={styles.optionInfo}>Only enabled if type is Knockout and "Use Two Legs" are selected</span>
                                            <br />
                                            <br />
                                            For knockout tournaments with two legs, the final will have only one neutral match
@@ -258,7 +262,7 @@ export function TournamentForm (props) {
                                        onChange={handleRadioChange('useAwayGoals')}
                                        label={"Use Away Goals Tiebreaker"}
                                        moreInfoComponent={<Typography className={styles.moreInfo}>
-                                           Only enabled if type is Knockout and "Use Two Legs" is selected
+                                           <span className={styles.optionInfo}>Only enabled if type is Knockout and "Use Two Legs" are selected</span>
                                            <br />
                                            <br />
                                            If the round is still a tie after both home and away matches are completed,
